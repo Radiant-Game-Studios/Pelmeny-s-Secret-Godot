@@ -10,9 +10,14 @@ config_version=5
 
 [application]
 
-config/name="Новый игровой проект"
+config/name="Pelmeny`s Secret"
+run/main_scene="uid://cyattxfiy732u"
 config/features=PackedStringArray("4.6", "GL Compatibility")
 config/icon="res://icon.svg"
+
+[autoload]
+
+MapManager="*uid://bbmk2ur0agjed"
 
 [physics]
 
