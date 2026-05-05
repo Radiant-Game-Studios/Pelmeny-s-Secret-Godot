@@ -1,6 +1,7 @@
 extends Node2D
 
 var player_scene = preload("res://scenes/player.tscn")
+var pause_menu_scene = preload("res://scenes/pause_menu.tscn")
 var current_player = null
 var map_container = null
 
@@ -8,7 +9,14 @@ var map_container = null
 
 func _ready():
 	fade_rect.visible = false
-	load_map("1.map")
+	# Если SceneManager передал данные
+	if has_method("set_data"):
+		pass  # вызовется из SceneManager
+
+
+func set_data(data: Dictionary):
+	var map_file = data.get("map_file", "1.map")
+	load_map(map_file)
 
 
 func load_map(map_name: String):
@@ -40,7 +48,6 @@ func spawn_player(map_data: Dictionary):
 	var teleports = map_data.get("teleport_points", [])
 	current_player.set_map_info(map_w, map_h, collisions, tsize, teleports)
 
-	# Размер спрайта
 	var anim_sprite = current_player.get_node("AnimatedSprite2D")
 	var sprite_size = Vector2(tsize, tsize)
 	if anim_sprite and anim_sprite.sprite_frames:
@@ -62,7 +69,6 @@ func spawn_player(map_data: Dictionary):
 		var cy = (map_h * tsize) / 2.0 - sprite_size.y / 2.0
 		current_player.position = Vector2(cx, cy)
 
-	# Камера
 	var cam = current_player.get_node_or_null("Camera2D")
 	if cam:
 		cam.limit_left = 0
@@ -70,13 +76,21 @@ func spawn_player(map_data: Dictionary):
 		cam.limit_right = map_w * tsize
 		cam.limit_bottom = map_h * tsize
 
-	# Подключаем сигнал
 	if not current_player.is_connected("teleport_attempted", _on_teleport_attempted):
 		current_player.teleport_attempted.connect(_on_teleport_attempted)
 
 
+func _input(event):
+	if event.is_action_pressed("ui_cancel"):  # ESC
+		open_pause_menu()
+
+
+func open_pause_menu():
+	var pause_menu = pause_menu_scene.instantiate()
+	add_child(pause_menu)
+
+
 func _on_teleport_attempted(target_map: String):
-	# Затемнение
 	fade_rect.color = Color(0, 0, 0, 0)
 	fade_rect.visible = true
 

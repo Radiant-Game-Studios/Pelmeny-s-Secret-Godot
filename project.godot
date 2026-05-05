@@ -11,13 +11,14 @@ config_version=5
 [application]
 
 config/name="Pelmeny`s Secret"
-run/main_scene="uid://cyattxfiy732u"
+run/main_scene="uid://typgajtslc6l"
 config/features=PackedStringArray("4.6", "GL Compatibility")
 config/icon="res://icon.svg"
 
 [autoload]
 
 MapManager="*uid://bbmk2ur0agjed"
+SceneManager="*uid://dcb375h303vqq"
 
 [display]
 
