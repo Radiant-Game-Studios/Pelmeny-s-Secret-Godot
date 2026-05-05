@@ -17,3 +17,12 @@ process_callback = 0
 position_smoothing_enabled = true
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=676975175]
+
+[node name="Label" type="Label" parent="." unique_id=2126115238]
+visible = false
+offset_left = -81.0
+offset_top = -30.0
+offset_right = 82.0
+offset_bottom = -7.0
+text = "E для телепортации"
+horizontal_alignment = 1

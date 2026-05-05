@@ -1,24 +1,27 @@
 extends CharacterBody2D
 
+signal teleport_attempted(target_map: String)
+
 @export var speed: float = 180.0
 @onready var anim: AnimatedSprite2D = $AnimatedSprite2D
+@onready var hint_label: Label = $Label
 
 var direction: Vector2 = Vector2.ZERO
 var map_collisions: Array = []
 var map_width: int = 0
 var map_height: int = 0
 var tile_size: int = 64
+var teleport_points: Array = []
 
 func _ready():
-	# Настраиваем анимации
+	# Настройка анимаций (как раньше)
 	var frames = SpriteFrames.new()
-	
+
 	# Ходьба (pers.png)
 	var walk_sheet = load("res://assets/sprites/main_person/pers.png")
 	if walk_sheet:
-		var w = walk_sheet.get_width() / 3   # 3 столбца
-		var h = walk_sheet.get_height() / 4  # 4 строки
-		# Анимации в порядке: down, left, right, up (как в оригинале)
+		var w = walk_sheet.get_width() / 3
+		var h = walk_sheet.get_height() / 4
 		var anim_names = ["walk_down", "walk_left", "walk_right", "walk_up"]
 		for row in range(4):
 			var anim_name = anim_names[row]
@@ -29,12 +32,12 @@ func _ready():
 				tex.atlas = walk_sheet
 				tex.region = rect
 				frames.add_frame(anim_name, tex)
-	
+
 	# Стояние (idle.png)
 	var idle_sheet = load("res://assets/sprites/main_person/idle.png")
 	if idle_sheet:
 		var iw = idle_sheet.get_width() / 2
-		var ih = idle_sheet.get_height()      # 1 строка
+		var ih = idle_sheet.get_height()
 		frames.add_animation("idle")
 		for col in range(2):
 			var rect = Rect2(col * iw, 0, iw, ih)
@@ -43,49 +46,56 @@ func _ready():
 			tex.region = rect
 			frames.add_frame("idle", tex)
 	else:
-		# Если idle нет, копируем первый кадр walk_down как заглушку
 		if frames.has_animation("walk_down"):
 			var first_frame = frames.get_frame("walk_down", 0)
 			frames.add_animation("idle")
 			frames.add_frame("idle", first_frame)
-	
-	# Настройка скорости анимации (ANIMATION_SPEED 8 -> 60/8 = 7.5 fps)
-	var anim_speed = 60.0 / 8.0   # 7.5 кадров в секунду
+
+	var anim_speed = 60.0 / 8.0   # 7.5 fps
 	for anim_name in frames.get_animation_names():
 		frames.set_animation_speed(anim_name, anim_speed)
-	
+
 	anim.sprite_frames = frames
 	anim.play("idle")
 
-func set_map_info(width: int, height: int, collisions: Array, tsize: int):
+
+func set_map_info(width: int, height: int, collisions: Array, tsize: int, teleports: Array = []):
 	map_width = width
 	map_height = height
 	map_collisions = collisions
 	tile_size = tsize
+	teleport_points = teleports
+
 
 func _physics_process(delta):
 	handle_input()
 	update_animation()
-	
+	check_near_teleport()
+
+	if Input.is_action_just_pressed("interact"):
+		try_teleport()
+
 	var move = direction * speed * delta
 	var test_x = position + Vector2(move.x, 0)
 	var test_y = position + Vector2(0, move.y)
-	
+
 	if not would_collide(test_x):
 		position.x = test_x.x
 	if not would_collide(test_y):
 		position.y = test_y.y
-	
+
 	var bounds = get_map_bounds()
 	position = Vector2(
 		clamp(position.x, bounds.position.x, bounds.end.x),
 		clamp(position.y, bounds.position.y, bounds.end.y)
 	)
 
+
 func handle_input():
 	direction = Input.get_vector("move_left", "move_right", "move_up", "move_down")
 	if direction.length() > 0:
 		direction = direction.normalized()
+
 
 func update_animation():
 	if direction == Vector2.ZERO:
@@ -101,6 +111,21 @@ func update_animation():
 		else:
 			anim.play("walk_right")
 
+
+func try_teleport():
+	# Определяем центр тайла, на котором стоит персонаж
+	var sprite_size = anim.sprite_frames.get_frame_texture("idle", 0).get_size()
+	var center_x = position.x + sprite_size.x / 2.0
+	var center_y = position.y + sprite_size.y / 2.0
+	var tile_x = int(center_x / tile_size)
+	var tile_y = int(center_y / tile_size)
+
+	for tp in teleport_points:
+		if tp.x == tile_x and tp.y == tile_y:
+			emit_signal("teleport_attempted", tp.target_map)
+			return
+
+
 func would_collide(test_pos: Vector2) -> bool:
 	var shape: RectangleShape2D = $CollisionShape2D.shape
 	var col_pos = $CollisionShape2D.position
@@ -114,9 +139,23 @@ func would_collide(test_pos: Vector2) -> bool:
 			return true
 	return false
 
+
 func get_map_bounds() -> Rect2:
 	var shape: RectangleShape2D = $CollisionShape2D.shape
 	var col_offset = $CollisionShape2D.position
 	var max_x = map_width * tile_size - col_offset.x - shape.size.x
 	var max_y = map_height * tile_size - col_offset.y - shape.size.y
 	return Rect2(-col_offset.x, -col_offset.y, max_x + col_offset.x, max_y + col_offset.y)
+
+func check_near_teleport():
+	var sprite_size = anim.sprite_frames.get_frame_texture("idle", 0).get_size()
+	var center_x = position.x + sprite_size.x / 2.0
+	var center_y = position.y + sprite_size.y / 2.0
+	var tile_x = int(center_x / tile_size)
+	var tile_y = int(center_y / tile_size)
+
+	for tp in teleport_points:
+		if tp.x == tile_x and tp.y == tile_y:
+			hint_label.visible = true
+			return
+	hint_label.visible = false

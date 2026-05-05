@@ -4,3 +4,15 @@
 
 [node name="Game" type="Node2D" unique_id=6515145]
 script = ExtResource("1_uwrxv")
+
+[node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=1804229874]
+
+[node name="FadeRect" type="ColorRect" parent="CanvasLayer" unique_id=1782789408]
+visible = false
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0, 0, 0, 1)

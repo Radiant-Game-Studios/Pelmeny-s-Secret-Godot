@@ -2,56 +2,92 @@ extends Node2D
 
 var player_scene = preload("res://scenes/player.tscn")
 var current_player = null
+var map_container = null
+
+@onready var fade_rect: ColorRect = $CanvasLayer/FadeRect
 
 func _ready():
-	var map_scene = MapManager.load_map("1.map")
-	if map_scene:
-		add_child(map_scene)
+	fade_rect.visible = false
+	load_map("1.map")
 
-		current_player = player_scene.instantiate()
-		add_child(current_player)
 
-		var map_data = map_scene.map_data
-		var collisions = map_data.get("collisions", [])
-		var map_w = map_data.get("width", 20)
-		var map_h = map_data.get("height", 15)
-		var tsize = map_data.get("tile_size", 64)
-		current_player.set_map_info(map_w, map_h, collisions, tsize)
+func load_map(map_name: String):
+	if map_container:
+		map_container.queue_free()
+	map_container = null
+	if current_player:
+		current_player.queue_free()
+	current_player = null
 
-		# Получаем размер спрайта из AnimatedSprite2D
-		var anim_sprite = current_player.get_node("AnimatedSprite2D")
-		var sprite_size = Vector2(tsize, tsize)   # значение по умолчанию
-		if anim_sprite and anim_sprite.sprite_frames:
-			var frames = anim_sprite.sprite_frames
-			if frames.has_animation("idle"):
-				var tex = frames.get_frame_texture("idle", 0)
-				if tex is AtlasTexture:
-					sprite_size = tex.region.size
-				else:
-					sprite_size = tex.get_size()
-			elif frames.has_animation("walk_down"):
-				var tex = frames.get_frame_texture("walk_down", 0)
-				if tex is AtlasTexture:
-					sprite_size = tex.region.size
-				else:
-					sprite_size = tex.get_size()
-		
-		var entry = map_data.get("entry_point", null)
-		if entry != null and entry is Array and entry.size() == 2:
-			var px = entry[0] * tsize + tsize / 2.0 - sprite_size.x / 2.0
-			var py = entry[1] * tsize + tsize / 2.0 - sprite_size.y / 2.0
-			current_player.position = Vector2(px, py)
-		else:
-			var cx = (map_w * tsize) / 2.0 - sprite_size.x / 2.0
-			var cy = (map_h * tsize) / 2.0 - sprite_size.y / 2.0
-			current_player.position = Vector2(cx, cy)
+	var new_map = MapManager.load_map(map_name)
+	if new_map == null:
+		push_error("Не удалось загрузить карту: " + map_name)
+		return
 
-		# Ограничения камеры
-		var cam = current_player.get_node_or_null("Camera2D")
-		if cam:
-			cam.limit_left = 0
-			cam.limit_top = 0
-			cam.limit_right = map_w * tsize
-			cam.limit_bottom = map_h * tsize
+	map_container = new_map
+	add_child(map_container)
+	spawn_player(map_container.map_data)
+
+
+func spawn_player(map_data: Dictionary):
+	current_player = player_scene.instantiate()
+	add_child(current_player)
+
+	var collisions = map_data.get("collisions", [])
+	var map_w = map_data.get("width", 20)
+	var map_h = map_data.get("height", 15)
+	var tsize = map_data.get("tile_size", 64)
+	var teleports = map_data.get("teleport_points", [])
+	current_player.set_map_info(map_w, map_h, collisions, tsize, teleports)
+
+	# Размер спрайта
+	var anim_sprite = current_player.get_node("AnimatedSprite2D")
+	var sprite_size = Vector2(tsize, tsize)
+	if anim_sprite and anim_sprite.sprite_frames:
+		var frames = anim_sprite.sprite_frames
+		if frames.has_animation("idle"):
+			var tex = frames.get_frame_texture("idle", 0)
+			if tex is AtlasTexture:
+				sprite_size = tex.region.size
+			else:
+				sprite_size = tex.get_size()
+
+	var entry = map_data.get("entry_point", null)
+	if entry != null and entry is Array and entry.size() == 2:
+		var px = entry[0] * tsize + tsize / 2.0 - sprite_size.x / 2.0
+		var py = entry[1] * tsize + tsize / 2.0 - sprite_size.y / 2.0
+		current_player.position = Vector2(px, py)
 	else:
-		push_error("Не удалось загрузить карту.")
+		var cx = (map_w * tsize) / 2.0 - sprite_size.x / 2.0
+		var cy = (map_h * tsize) / 2.0 - sprite_size.y / 2.0
+		current_player.position = Vector2(cx, cy)
+
+	# Камера
+	var cam = current_player.get_node_or_null("Camera2D")
+	if cam:
+		cam.limit_left = 0
+		cam.limit_top = 0
+		cam.limit_right = map_w * tsize
+		cam.limit_bottom = map_h * tsize
+
+	# Подключаем сигнал
+	if not current_player.is_connected("teleport_attempted", _on_teleport_attempted):
+		current_player.teleport_attempted.connect(_on_teleport_attempted)
+
+
+func _on_teleport_attempted(target_map: String):
+	# Затемнение
+	fade_rect.color = Color(0, 0, 0, 0)
+	fade_rect.visible = true
+
+	var tween = create_tween()
+	tween.tween_property(fade_rect, "color", Color.BLACK, 0.3)
+	tween.tween_callback(func():
+		load_map(target_map + ".map")
+		fade_rect.color = Color.BLACK
+		var tween2 = create_tween()
+		tween2.tween_property(fade_rect, "color", Color(0, 0, 0, 0), 0.3)
+		tween2.tween_callback(func():
+			fade_rect.visible = false
+		)
+	)
