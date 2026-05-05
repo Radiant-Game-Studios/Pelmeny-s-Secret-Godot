@@ -78,6 +78,15 @@ func spawn_player(map_data: Dictionary):
 
 	if not current_player.is_connected("teleport_attempted", _on_teleport_attempted):
 		current_player.teleport_attempted.connect(_on_teleport_attempted)
+		
+	# Fade in при загрузке игры
+	fade_rect.color = Color.BLACK
+	fade_rect.visible = true
+	var tween = create_tween()
+	tween.tween_property(fade_rect, "color", Color(0, 0, 0, 0), 0.5)
+	tween.tween_callback(func():
+		fade_rect.visible = false
+	)
 
 
 func _input(event):
