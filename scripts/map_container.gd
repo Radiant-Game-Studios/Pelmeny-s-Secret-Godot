@@ -122,9 +122,9 @@ func generate_base_tile_texture(tile_type: int, tile_size: int) -> ImageTexture:
 	image.fill(colors.get(tile_type, Color.PINK))
 
 	# Сетка
-	#for i in range(0, tile_size, 4):
-	#	image.fill_rect(Rect2i(i, 0, 1, tile_size), Color(0,0,0,0.1))
-	#	image.fill_rect(Rect2i(0, i, tile_size, 1), Color(0,0,0,0.1))
+	for i in range(0, tile_size, 48):
+		image.fill_rect(Rect2i(i, 0, 1, tile_size), Color(0,0,0,0.05))
+		image.fill_rect(Rect2i(0, i, tile_size, 1), Color(0,0,0,0.05))
 
 	# Особые тайлы
 	match tile_type:

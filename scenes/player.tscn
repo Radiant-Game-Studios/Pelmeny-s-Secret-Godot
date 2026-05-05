@@ -1,7 +1,6 @@
 [gd_scene format=3 uid="uid://bjiodbokug1g5"]
 
 [ext_resource type="Script" uid="uid://c5fnd3h61s6ew" path="res://scripts/player/player.gd" id="1_g2els"]
-[ext_resource type="Texture2D" uid="uid://besartaocpdiv" path="res://resources/pics/main_person/pers.png" id="2_qhqgy"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_u8vuu"]
 size = Vector2(72, 70)
@@ -13,11 +12,8 @@ script = ExtResource("1_g2els")
 position = Vector2(0, 51)
 shape = SubResource("RectangleShape2D_u8vuu")
 
-[node name="Sprite2D" type="Sprite2D" parent="." unique_id=147563393]
-texture = ExtResource("2_qhqgy")
-region_enabled = true
-region_rect = Rect2(0, 0, 95, 182)
-
 [node name="Camera2D" type="Camera2D" parent="." unique_id=1242527111]
 process_callback = 0
 position_smoothing_enabled = true
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=676975175]
