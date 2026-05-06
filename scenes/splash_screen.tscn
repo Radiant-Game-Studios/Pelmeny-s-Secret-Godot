@@ -1,0 +1,56 @@
+[gd_scene format=3 uid="uid://dhunxoojn581x"]
+
+[ext_resource type="Script" uid="uid://d05o0i8igit5y" path="res://scripts/splash_screen.gd" id="1_hsxvm"]
+[ext_resource type="Texture2D" uid="uid://bx40bofn7yy27" path="res://icon.svg" id="1_n4g2v"]
+
+[node name="SplashScreen" type="Control" unique_id=1478775906]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_hsxvm")
+
+[node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=718593584]
+
+[node name="FadeRect" type="ColorRect" parent="CanvasLayer" unique_id=1953209795]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0, 0, 0, 1)
+
+[node name="TextureRect" type="TextureRect" parent="." unique_id=1287589771]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -20.0
+offset_top = -20.0
+offset_right = 20.0
+offset_bottom = 20.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("1_n4g2v")
+stretch_mode = 4
+
+[node name="Label" type="Label" parent="." unique_id=496093540]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -85.0
+offset_top = -44.0
+offset_right = 86.0
+offset_bottom = -21.0
+grow_horizontal = 2
+grow_vertical = 0
+text = "Radiant Game Studios"
+horizontal_alignment = 1

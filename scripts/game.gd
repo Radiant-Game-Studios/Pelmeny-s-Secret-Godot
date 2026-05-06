@@ -8,24 +8,26 @@ var map_container = null
 @onready var fade_rect: ColorRect = $CanvasLayer/FadeRect
 
 func _ready():
-	fade_rect.visible = false
-	# Если SceneManager передал данные
-	if has_method("set_data"):
-		pass  # вызовется из SceneManager
-
-
-func set_data(data: Dictionary):
-	var map_file = data.get("map_file", "1.map")
+	fade_rect.visible = true
+	fade_rect.color = Color.BLACK
+	
+	var map_file = SceneManager.pending_map
+	if map_file == "":
+		map_file = "test.map"
+	
+	await get_tree().process_frame
+	await get_tree().process_frame
+	
 	load_map(map_file)
 
 
 func load_map(map_name: String):
 	if map_container:
 		map_container.queue_free()
-	map_container = null
+		map_container = null
 	if current_player:
 		current_player.queue_free()
-	current_player = null
+		current_player = null
 
 	var new_map = MapManager.load_map(map_name)
 	if new_map == null:
@@ -34,6 +36,8 @@ func load_map(map_name: String):
 
 	map_container = new_map
 	add_child(map_container)
+	move_child(map_container, 0)  # карта позади CanvasLayer
+	
 	spawn_player(map_container.map_data)
 
 
@@ -48,17 +52,17 @@ func spawn_player(map_data: Dictionary):
 	var teleports = map_data.get("teleport_points", [])
 	current_player.set_map_info(map_w, map_h, collisions, tsize, teleports)
 
+	# Размер спрайта
 	var anim_sprite = current_player.get_node("AnimatedSprite2D")
 	var sprite_size = Vector2(tsize, tsize)
 	if anim_sprite and anim_sprite.sprite_frames:
 		var frames = anim_sprite.sprite_frames
 		if frames.has_animation("idle"):
 			var tex = frames.get_frame_texture("idle", 0)
-			if tex is AtlasTexture:
-				sprite_size = tex.region.size
-			else:
+			if tex:
 				sprite_size = tex.get_size()
 
+	# Позиция игрока
 	var entry = map_data.get("entry_point", null)
 	if entry != null and entry is Array and entry.size() == 2:
 		var px = entry[0] * tsize + tsize / 2.0 - sprite_size.x / 2.0
@@ -69,17 +73,20 @@ func spawn_player(map_data: Dictionary):
 		var cy = (map_h * tsize) / 2.0 - sprite_size.y / 2.0
 		current_player.position = Vector2(cx, cy)
 
+	# Настройка камеры
 	var cam = current_player.get_node_or_null("Camera2D")
 	if cam:
 		cam.limit_left = 0
 		cam.limit_top = 0
 		cam.limit_right = map_w * tsize
 		cam.limit_bottom = map_h * tsize
+		cam.position = current_player.position + sprite_size / 2.0 - get_viewport().get_visible_rect().size / 2.0
+		cam.reset_smoothing()
 
 	if not current_player.is_connected("teleport_attempted", _on_teleport_attempted):
 		current_player.teleport_attempted.connect(_on_teleport_attempted)
-		
-	# Fade in при загрузке игры
+	
+	# Fade in
 	fade_rect.color = Color.BLACK
 	fade_rect.visible = true
 	var tween = create_tween()
@@ -90,7 +97,7 @@ func spawn_player(map_data: Dictionary):
 
 
 func _input(event):
-	if event.is_action_pressed("ui_cancel"):  # ESC
+	if event.is_action_pressed("ui_cancel"):
 		open_pause_menu()
 
 
