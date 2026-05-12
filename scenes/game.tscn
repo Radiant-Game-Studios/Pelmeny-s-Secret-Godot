@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://cyattxfiy732u"]
 
 [ext_resource type="Script" uid="uid://bihktosmjf8tt" path="res://scripts/game.gd" id="1_uwrxv"]
+[ext_resource type="Script" uid="uid://b8qhmkspqmp3v" path="res://scripts/ui/debug_draw.gd" id="2_yqjtg"]
 
 [node name="Game" type="Node2D" unique_id=6515145]
 script = ExtResource("1_uwrxv")
@@ -15,3 +16,25 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 color = Color(0, 0, 0, 1)
+
+[node name="DebugCanvas" type="CanvasLayer" parent="." unique_id=999342920]
+
+[node name="InfoPanel" type="ColorRect" parent="DebugCanvas" unique_id=1264983063]
+offset_left = 5.0
+offset_top = 5.0
+offset_right = 315.0
+offset_bottom = 185.0
+color = Color(0, 0, 0, 0.78431374)
+
+[node name="InfoLabel" type="Label" parent="DebugCanvas/InfoPanel" unique_id=1178146781]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 14
+
+[node name="DebugDraw" type="Node2D" parent="." unique_id=468509708]
+script = ExtResource("2_yqjtg")

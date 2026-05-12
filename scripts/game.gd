@@ -5,11 +5,24 @@ var pause_menu_scene = preload("res://scenes/pause_menu.tscn")
 var current_player = null
 var map_container = null
 
+# Новое: переменные отладки
+var show_debug_info: bool = false
+var show_collisions: bool = false
+
 @onready var fade_rect: ColorRect = $CanvasLayer/FadeRect
+@onready var info_panel: ColorRect = $DebugCanvas/InfoPanel
+@onready var info_label: Label = $DebugCanvas/InfoPanel/InfoLabel
+@onready var debug_draw: Node2D = $DebugDraw
+
 
 func _ready():
 	fade_rect.visible = true
 	fade_rect.color = Color.BLACK
+	
+	# Новое: начальное состояние отладки
+	info_panel.visible = true
+	debug_draw.show_collisions = false
+	show_debug_info = true
 	
 	var map_file = SceneManager.pending_map
 	if map_file == "":
@@ -36,7 +49,7 @@ func load_map(map_name: String):
 
 	map_container = new_map
 	add_child(map_container)
-	move_child(map_container, 0)  # карта позади CanvasLayer
+	move_child(map_container, 0)
 	
 	spawn_player(map_container.map_data)
 
@@ -83,6 +96,11 @@ func spawn_player(map_data: Dictionary):
 		cam.position = current_player.position + sprite_size / 2.0 - get_viewport().get_visible_rect().size / 2.0
 		cam.reset_smoothing()
 
+	# Новое: передаём данные коллизий в отладочный узел
+	if debug_draw:
+		debug_draw.collision_rects = collisions
+		debug_draw.tile_size = tsize
+
 	if not current_player.is_connected("teleport_attempted", _on_teleport_attempted):
 		current_player.teleport_attempted.connect(_on_teleport_attempted)
 	
@@ -99,6 +117,44 @@ func spawn_player(map_data: Dictionary):
 func _input(event):
 	if event.is_action_pressed("ui_cancel"):
 		open_pause_menu()
+		return
+	# Новое: переключение отладки
+	if event.is_action_pressed("toggle_debug"):
+		show_debug_info = !show_debug_info
+		info_panel.visible = show_debug_info
+	if event.is_action_pressed("toggle_collisions"):
+		show_collisions = !show_collisions
+		debug_draw.show_collisions = show_collisions
+		debug_draw.queue_redraw()
+
+
+func _physics_process(delta):
+	# Новое: обновление текста отладки и хитбокса игрока
+	if show_debug_info:
+		_update_debug_text()
+	
+	if show_collisions and current_player:
+		_update_collision_debug()
+
+
+func _update_debug_text():
+	var fps = Engine.get_frames_per_second()
+	var text = "FPS: %d\n\n" % fps
+	text += "Управление:\n"
+	text += "Стрелки/WASD - движение\n"
+	text += "E - телепорт\n"
+	text += "C - коллизии\n"
+	text += "H - скрыть подсказку\n"
+	text += "ESC - меню"
+	info_label.text = text
+
+
+func _update_collision_debug():
+	# Обновляем хитбокс игрока в системе координат карты
+	var shape: RectangleShape2D = current_player.get_node("CollisionShape2D").shape
+	var col_pos = current_player.get_node("CollisionShape2D").position
+	debug_draw.player_hitbox = Rect2(current_player.position + col_pos, shape.size)
+	debug_draw.queue_redraw()
 
 
 func open_pause_menu():
