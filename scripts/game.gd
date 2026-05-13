@@ -139,13 +139,8 @@ func _physics_process(delta):
 
 func _update_debug_text():
 	var fps = Engine.get_frames_per_second()
-	var text = "FPS: %d\n\n" % fps
-	text += "Управление:\n"
-	text += "Стрелки/WASD - движение\n"
-	text += "E - телепорт\n"
-	text += "C - коллизии\n"
-	text += "H - скрыть подсказку\n"
-	text += "ESC - меню"
+	var text = LocalizationManager.get_text("debug_fps") + ": %d\n\n" % fps
+	text += LocalizationManager.get_text("debug_controls")
 	info_label.text = text
 
 

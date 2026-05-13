@@ -19,6 +19,7 @@ config/icon="res://icon.svg"
 
 MapManager="*uid://bbmk2ur0agjed"
 SceneManager="*uid://dcb375h303vqq"
+LocalizationManager="*uid://bt3w6cvk4pumb"
 
 [display]
 

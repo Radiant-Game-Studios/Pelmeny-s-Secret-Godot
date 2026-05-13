@@ -157,5 +157,6 @@ func check_near_teleport():
 	for tp in teleport_points:
 		if tp.x == tile_x and tp.y == tile_y:
 			hint_label.visible = true
+			hint_label.text = LocalizationManager.get_text("press_e_to_teleport")
 			return
 	hint_label.visible = false

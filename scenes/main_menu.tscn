@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://typgajtslc6l"]
 
 [ext_resource type="Script" uid="uid://ceoccxt8ynrca" path="res://scripts/main_menu.gd" id="1_l6cm7"]
+[ext_resource type="Texture2D" uid="uid://bmir7kt8rpxx8" path="res://resources/pics/system/rflag.jpg" id="2_ekxnf"]
 
 [node name="MainMenu" type="Control" unique_id=953836575]
 layout_mode = 3
@@ -59,6 +60,31 @@ text = "Новая игра"
 [node name="ExitButton" type="Button" parent="VBoxContainer" unique_id=851262431]
 layout_mode = 2
 text = "Выход"
+
+[node name="LanguageButton" type="Button" parent="." unique_id=1977098770]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -116.0
+offset_top = -76.0
+offset_right = -16.0
+offset_bottom = -14.0
+grow_horizontal = 0
+grow_vertical = 0
+
+[node name="FlagIcon" type="TextureRect" parent="LanguageButton" unique_id=2010128300]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("2_ekxnf")
+expand_mode = 2
+stretch_mode = 4
 
 [node name="VersionLabel" type="Label" parent="." unique_id=882997114]
 layout_mode = 0

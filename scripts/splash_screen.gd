@@ -10,6 +10,8 @@ func _ready():
 	tween.tween_interval(0.5)
 	tween.tween_property(fade_rect, "color", Color.BLACK, 1.0)
 	tween.tween_callback(_go_to_menu)
+	
+	$Label.text = LocalizationManager.get_text("splash_subtitle")
 
 
 func _go_to_menu():

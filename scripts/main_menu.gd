@@ -1,18 +1,48 @@
 extends Control
 
 @onready var fade_rect: ColorRect = $CanvasLayer/FadeRect
+@onready var flag_icon: TextureRect = $LanguageButton/FlagIcon
+
+var flag_ru = preload("res://assets/sprites/system/rflag.jpg")
+var flag_en = preload("res://assets/sprites/system/usa.jpg")
+
 
 func _ready():
 	fade_rect.color = Color.BLACK
 	var tween = create_tween()
 	tween.tween_property(fade_rect, "color", Color(0, 0, 0, 0), 0.5)
 	
-	var save_exists = FileAccess.file_exists("user://savegame.dat")
-	$VBoxContainer/ContinueButton.visible = save_exists
-	
+	# Кнопки
+	$VBoxContainer/ContinueButton.visible = FileAccess.file_exists("user://savegame.dat")
 	$VBoxContainer/ContinueButton.pressed.connect(_on_continue)
 	$VBoxContainer/NewGameButton.pressed.connect(_on_new_game)
 	$VBoxContainer/ExitButton.pressed.connect(_on_exit)
+	$LanguageButton.pressed.connect(_on_toggle_language)
+	
+	# Установка текстов кнопок
+	_refresh_texts()
+	
+	# Установка иконки языка
+	_update_flag_icon()
+
+
+func _refresh_texts():
+	$VBoxContainer/NewGameButton.text = LocalizationManager.get_text("new_game")
+	$VBoxContainer/ContinueButton.text = LocalizationManager.get_text("continue")
+	$VBoxContainer/ExitButton.text = LocalizationManager.get_text("exit")
+
+
+func _update_flag_icon():
+	if LocalizationManager.current_language == LocalizationManager.Language.RUSSIAN:
+		flag_icon.texture = flag_ru
+	else:
+		flag_icon.texture = flag_en
+
+
+func _on_toggle_language():
+	LocalizationManager.toggle_language()
+	_refresh_texts()
+	_update_flag_icon()
 
 
 func _on_continue():

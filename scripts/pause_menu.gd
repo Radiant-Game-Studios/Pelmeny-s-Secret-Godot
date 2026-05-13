@@ -12,6 +12,12 @@ func _ready():
 	
 	# Обрабатываем ESC — тоже выход из паузы
 	process_mode = Node.PROCESS_MODE_ALWAYS
+	
+	#локализация
+	$VBoxContainer/ContinueButton.text = LocalizationManager.get_text("continue")
+	$VBoxContainer/SaveButton.text = LocalizationManager.get_text("save")
+	$VBoxContainer/MainMenuButton.text = LocalizationManager.get_text("main_menu")
+	$VBoxContainer/ExitButton.text = LocalizationManager.get_text("exit")
 
 func _input(event):
 	if event.is_action_pressed("ui_cancel"):  # ESC
