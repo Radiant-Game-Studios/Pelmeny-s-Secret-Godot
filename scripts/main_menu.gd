@@ -8,6 +8,8 @@ var flag_en = preload("res://assets/sprites/system/usa.jpg")
 
 
 func _ready():
+	AudioManager.play_music(load("res://assets/music/mainmenu.mp3"))
+	
 	fade_rect.color = Color.BLACK
 	var tween = create_tween()
 	tween.tween_property(fade_rect, "color", Color(0, 0, 0, 0), 0.5)
@@ -50,10 +52,12 @@ func _on_continue():
 
 
 func _on_new_game():
+	# добавить звук клика AudioManager.play_sfx_path("res://assets/audio/sfx_click.ogg")
 	_fade_to_game("1.map")
 
 
 func _on_exit():
+	# добавить звук клика AudioManager.play_sfx_path("res://assets/audio/sfx_click.ogg")
 	var tween = create_tween()
 	tween.tween_property(fade_rect, "color", Color.BLACK, 0.5)
 	tween.tween_callback(get_tree().quit)

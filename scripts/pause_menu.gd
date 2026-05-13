@@ -23,6 +23,7 @@ func _input(event):
 	if event.is_action_pressed("ui_cancel"):  # ESC
 		_on_continue()
 
+#добавить звуки нажатий на кнопки
 func _on_continue():
 	get_tree().paused = false
 	queue_free()

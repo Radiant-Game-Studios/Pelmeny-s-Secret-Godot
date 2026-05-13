@@ -52,6 +52,8 @@ func load_map(map_name: String):
 	move_child(map_container, 0)
 	
 	spawn_player(map_container.map_data)
+	
+	AudioManager.play_music(load("res://assets/music/%s.mp3" % [map_name.left(map_name.length() - 4)]))
 
 
 func spawn_player(map_data: Dictionary):
@@ -158,6 +160,7 @@ func open_pause_menu():
 
 
 func _on_teleport_attempted(target_map: String):
+	# добавить звук AudioManager.play_sfx_path("res://assets/audio/sfx_teleport.ogg")
 	fade_rect.color = Color(0, 0, 0, 0)
 	fade_rect.visible = true
 

@@ -12,10 +12,24 @@ var map_width: int = 0
 var map_height: int = 0
 var tile_size: int = 64
 var teleport_points: Array = []
+var step_timer: float = 0.0
+var step_interval: float = 0.4  # интервал между шагами
+var step_sfx: AudioStream = null
+var step_player: AudioStreamPlayer = null
 
 func _ready():
 	# Настройка анимаций (как раньше)
 	var frames = SpriteFrames.new()
+	
+	# Загружаем звук шагов один раз
+	step_sfx = load("res://assets/music/walk.mp3")
+	
+	# Создаём плеер специально для шагов
+	step_player = AudioStreamPlayer.new()
+	step_player.bus = "SFX"
+	step_player.stream = step_sfx
+	step_player.volume_db = linear_to_db(0.3)
+	add_child(step_player)
 
 	# Ходьба (pers.png)
 	var walk_sheet = load("res://assets/sprites/main_person/pers.png")
@@ -74,6 +88,21 @@ func _physics_process(delta):
 
 	if Input.is_action_just_pressed("interact"):
 		try_teleport()
+		
+	# Звук шагов
+	if direction != Vector2.ZERO:
+		step_timer -= delta
+		if step_timer <= 0:
+			step_timer = step_interval
+			# Перезапускаем звук с начала
+			if step_player.playing:
+				step_player.stop()
+			step_player.play()
+	else:
+		# Останавливаем звук при бездействии
+		if step_player.playing:
+			step_player.stop()
+		step_timer = 0.0
 
 	var move = direction * speed * delta
 	var test_x = position + Vector2(move.x, 0)
@@ -89,7 +118,6 @@ func _physics_process(delta):
 		clamp(position.x, bounds.position.x, bounds.end.x),
 		clamp(position.y, bounds.position.y, bounds.end.y)
 	)
-
 
 func handle_input():
 	direction = Input.get_vector("move_left", "move_right", "move_up", "move_down")
