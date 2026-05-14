@@ -928,7 +928,7 @@ class MapEditor:
                         self.paste_tiles()
                 else:
                     if event.key == pg.K_SPACE:
-                        modes = ["paint", "collision", "fill", "entry_point", "teleport_point"]
+                        modes = ["paint", "collision", "fill", "entry_point", "teleport_point", "dialog_point"]
                         idx = modes.index(self.mode) if self.mode in modes else 0
                         self.mode = modes[(idx + 1) % len(modes)]
                     elif event.key == pg.K_f:
@@ -943,6 +943,8 @@ class MapEditor:
                         self.mode = "entry_point"
                     elif event.key == pg.K_5:
                         self.mode = "teleport_point"
+                    elif event.key == pg.K_6:
+                        self.mode = "dialog_point"
                     elif event.key == pg.K_c:
                         if not self.is_selecting:
                             self.is_selecting = True
