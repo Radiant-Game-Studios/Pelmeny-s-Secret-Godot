@@ -28,6 +28,7 @@ COLOR_COLLISION = (255, 0, 0, 100)
 COLOR_FILL_PREVIEW = (0, 255, 0, 100)
 COLOR_ENTRY_POINT = (0, 255, 0)
 COLOR_TELEPORT_POINT = (0, 150, 255)
+#clear
 
 def get_work_area_width(screen_width):
     return screen_width - UI_PANEL_WIDTH
@@ -114,16 +115,17 @@ class MapEditor:
     def update_ui_rects(self):
         work_width = self.get_work_area_width()
         self.buttons = {
-            "new": pg.Rect(work_width + 10, 50, 180, 30),
-            "save": pg.Rect(work_width + 10, 90, 180, 30),
-            "load": pg.Rect(work_width + 10, 130, 180, 30),
-            "clear": pg.Rect(work_width + 10, 170, 180, 30),
-            "mode_paint": pg.Rect(work_width + 10, 210, 180, 30),
-            "mode_collision": pg.Rect(work_width + 10, 250, 180, 30),
-            "mode_fill": pg.Rect(work_width + 10, 290, 180, 30),
-            "resize": pg.Rect(work_width + 10, 330, 180, 30),
-            "mode_entry": pg.Rect(work_width + 10, 370, 180, 30),
-            "mode_teleport": pg.Rect(work_width + 10, 410, 180, 30),
+            "new":           pg.Rect(work_width+10, 50, 180, 30),
+            "save":          pg.Rect(work_width+10, 90, 180, 30),
+            "load":          pg.Rect(work_width+10,130, 180, 30),
+            "clear":         pg.Rect(work_width+10,170, 180, 30),
+            "mode_paint":    pg.Rect(work_width+10,210, 180, 30),
+            "mode_collision":pg.Rect(work_width+10,250, 180, 30),
+            "mode_fill":     pg.Rect(work_width+10,290, 180, 30),
+            "mode_entry":    pg.Rect(work_width+10,330, 180, 30),
+            "mode_teleport": pg.Rect(work_width+10,370, 180, 30),
+            "mode_dialog":   pg.Rect(work_width+10,410, 180, 30),
+            "resize":        pg.Rect(work_width+10,450, 180, 30),
         }
 
     def create_editor_tiles(self):
@@ -233,6 +235,7 @@ class MapEditor:
             'collisions': copy.deepcopy(self.collisions),
             'entry_point': copy.deepcopy(self.entry_point),
             'teleport_points': copy.deepcopy(self.teleport_points),
+            'dialog_triggers': copy.deepcopy(self.dialog_triggers),
         }
         self.undo_stack.append(state)
         if len(self.undo_stack) > self.max_history:
@@ -249,6 +252,7 @@ class MapEditor:
             'collisions': copy.deepcopy(self.collisions),
             'entry_point': copy.deepcopy(self.entry_point),
             'teleport_points': copy.deepcopy(self.teleport_points),
+            'dialog_triggers': copy.deepcopy(self.dialog_triggers),
         }
         self.redo_stack.append(current_state)
         prev_state = self.undo_stack.pop()
@@ -258,6 +262,7 @@ class MapEditor:
         self.collisions = prev_state['collisions']
         self.entry_point = prev_state.get('entry_point')
         self.teleport_points = prev_state.get('teleport_points', [])
+        self.dialog_triggers = prev_state.get('dialog_triggers', [])
 
     def redo(self):
         if not self.redo_stack:
@@ -269,6 +274,7 @@ class MapEditor:
             'collisions': copy.deepcopy(self.collisions),
             'entry_point': copy.deepcopy(self.entry_point),
             'teleport_points': copy.deepcopy(self.teleport_points),
+            'dialog_triggers': copy.deepcopy(self.dialog_triggers),
         }
         self.undo_stack.append(current_state)
         next_state = self.redo_stack.pop()
@@ -278,6 +284,7 @@ class MapEditor:
         self.collisions = next_state['collisions']
         self.entry_point = next_state.get('entry_point')
         self.teleport_points = next_state.get('teleport_points', [])
+        self.dialog_triggers = next_state.get('dialog_triggers', [])
 
     def copy_selection(self):
         if self.copy_start_pos is None or self.copy_end_pos is None:
@@ -376,6 +383,7 @@ class MapEditor:
         self.collisions = []
         self.entry_point = None
         self.teleport_points = []
+        self.dialog_triggers = []
         self.camera_x = 0
         self.camera_y = 0
         self.undo_stack.clear()
@@ -392,6 +400,7 @@ class MapEditor:
         if self.entry_point and (self.entry_point[0] >= new_w or self.entry_point[1] >= new_h):
             self.entry_point = None
         self.teleport_points = [tp for tp in self.teleport_points if tp["x"] < new_w and tp["y"] < new_h]
+        self.dialog_triggers = [dt for dt in self.dialog_triggers if dt["x"] < new_w and dt["y"] < new_h]
         self.map_width_tiles = new_w
         self.map_height_tiles = new_h
         self.camera_x = min(self.camera_x, self.map_width_tiles * self.tile_size - self.get_work_area_width())
@@ -410,7 +419,8 @@ class MapEditor:
             "layer3_tiles": self.layer3_tiles,
             "collisions": self.collisions,
             "entry_point": self.entry_point,
-            "teleport_points": self.teleport_points
+            "teleport_points": self.teleport_points,
+            "dialog_triggers": self.dialog_triggers
         }
         with open(filename, 'w') as f:
             json.dump(data, f, indent=2)
@@ -429,6 +439,7 @@ class MapEditor:
             self.collisions = data.get("collisions", [])
             self.entry_point = data.get("entry_point", None)
             self.teleport_points = data.get("teleport_points", [])
+            self.dialog_triggers = data.get("dialog_triggers", [])
             self.camera_x = 0
             self.camera_y = 0
             self.undo_stack.clear()
@@ -605,6 +616,17 @@ class MapEditor:
             map_label = self.font_small.render(tp["target_map"], True, COLOR_TELEPORT_POINT)
             self.screen.blit(map_label, (sx, sy + self.tile_size))
 
+        #отрисуем и диалоговые точки
+        for dt in self.dialog_triggers:
+            x, y = dt["x"], dt["y"]
+            sx = x * self.tile_size - self.camera_x
+            sy = y * self.tile_size - self.camera_y
+            pg.draw.rect(self.screen, (255, 200, 0), (sx+2, sy+2, self.tile_size-4, self.tile_size-4), 3)
+            label = self.font_small.render("D", True, (255, 200, 0))
+            self.screen.blit(label, (sx + self.tile_size//2 - 4, sy + self.tile_size//2 - 8))
+            id_label = self.font_small.render(dt["dialog_id"], True, (255, 200, 0))
+            self.screen.blit(id_label, (sx, sy + self.tile_size))
+
     def draw_ui(self):
         work_width = self.get_work_area_width()
         pg.draw.rect(self.screen, COLOR_UI_BG, (work_width, 0, UI_PANEL_WIDTH, self.screen_height))
@@ -630,6 +652,7 @@ class MapEditor:
                 "resize": "Изменить размер",
                 "mode_entry": "Точка входа (S)",
                 "mode_teleport": "Точка телепорта (T)",
+                "mode_dialog": "Режим: Диалог (D)",
             }
             text = self.font_small.render(text_map[name], True, COLOR_TEXT)
             text_rect = text.get_rect(center=rect.center)
@@ -642,6 +665,7 @@ class MapEditor:
             "fill": "Режим: Заливка",
             "entry_point": "Режим: Точка входа",
             "teleport_point": "Режим: Телепорт",
+            "dialog_point": "Режим: Диалог",
         }.get(self.mode, "")
         mode_color = {
             "paint": (100, 255, 100),
@@ -649,6 +673,7 @@ class MapEditor:
             "fill": (100, 100, 255),
             "entry_point": COLOR_ENTRY_POINT,
             "teleport_point": COLOR_TELEPORT_POINT,
+            "dialog_point": (255, 200, 0),
         }.get(self.mode, (255,255,255))
         mode_surf = self.font.render(mode_text, True, mode_color)
         self.screen.blit(mode_surf, (work_width + 10, 450))
@@ -813,6 +838,18 @@ class MapEditor:
                                     self.save_state()
                                     self.teleport_points = [p for p in self.teleport_points if not (p["x"] == wx and p["y"] == wy)]
                                     self.teleport_points.append({"x": wx, "y": wy, "target_map": target})
+                        elif self.mode == "dialog_point":
+                            wx, wy = self.screen_to_world(event.pos[0], event.pos[1])
+                            if 0 <= wx < self.map_width_tiles and 0 <= wy < self.map_height_tiles:
+                                self.dialog_open = True
+                                dialog_id = self.ask_string_pygame("ID диалога:", default="")
+                                self.dialog_open = False
+                                if dialog_id:
+                                    self.save_state()
+                                    # удаляем старую точку на этой клетке, если была
+                                    self.dialog_triggers = [p for p in self.dialog_triggers 
+                                                            if not (p["x"] == wx and p["y"] == wy)]
+                                    self.dialog_triggers.append({"x": wx, "y": wy, "dialog_id": dialog_id})
                     else:
                         for name, rect in self.buttons.items():
                             if rect.collidepoint(event.pos):
@@ -842,6 +879,10 @@ class MapEditor:
                         elif self.mode == "teleport_point":
                             wx, wy = self.screen_to_world(event.pos[0], event.pos[1])
                             self.teleport_points = [p for p in self.teleport_points if not (p["x"] == wx and p["y"] == wy)]
+                        elif self.mode == "dialog_point":
+                            wx, wy = self.screen_to_world(event.pos[0], event.pos[1])
+                            self.dialog_triggers = [p for p in self.dialog_triggers 
+                                                    if not (p["x"] == wx and p["y"] == wy)]
                 elif event.button == 4:
                     mouse_x, mouse_y = event.pos
                     work_width = self.get_work_area_width()
@@ -934,6 +975,7 @@ class MapEditor:
             self.collisions = []
             self.entry_point = None
             self.teleport_points = []
+            self.dialog_triggers = []
         elif name == "mode_paint":
             self.mode = "paint"
         elif name == "mode_collision":
@@ -949,6 +991,8 @@ class MapEditor:
             self.mode = "entry_point"
         elif name == "mode_teleport":
             self.mode = "teleport_point"
+        elif name == "mode_dialog":
+            self.mode = "dialog_point"
 
     def handle_new_map_dialog(self, event):
         if event.type == pg.MOUSEBUTTONDOWN and event.button == 1:
@@ -1152,6 +1196,8 @@ class MapEditor:
                         pg.draw.rect(self.screen, COLOR_ENTRY_POINT, (sx+2, sy+2, self.tile_size-4, self.tile_size-4), 2)
                     elif self.mode == "teleport_point":
                         pg.draw.rect(self.screen, COLOR_TELEPORT_POINT, (sx+2, sy+2, self.tile_size-4, self.tile_size-4), 2)
+                    elif self.mode == "dialog_point":
+                        pg.draw.rect(self.screen, (255,200,0), (sx+2, sy+2, self.tile_size-4, self.tile_size-4), 2)
             self.draw_ui()
             if self.show_new_map_dialog:
                 self.draw_new_map_dialog()
