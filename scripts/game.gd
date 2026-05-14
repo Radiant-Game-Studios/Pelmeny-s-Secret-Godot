@@ -160,7 +160,7 @@ func open_pause_menu():
 
 
 func _on_teleport_attempted(target_map: String):
-	# добавить звук AudioManager.play_sfx_path("res://assets/audio/sfx_teleport.ogg")
+	AudioManager.play_sfx_path("res://assets/sounds/teleport.mp3")
 	fade_rect.color = Color(0, 0, 0, 0)
 	fade_rect.visible = true
 

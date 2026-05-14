@@ -23,20 +23,23 @@ func _input(event):
 	if event.is_action_pressed("ui_cancel"):  # ESC
 		_on_continue()
 
-#добавить звуки нажатий на кнопки
 func _on_continue():
+	AudioManager.play_sfx_path("res://assets/sounds/click.mp3")
 	get_tree().paused = false
 	queue_free()
 
 func _on_save():
+	AudioManager.play_sfx_path("res://assets/sounds/click.mp3")
 	print("Игра сохранена!")
 	# Здесь будет логика сохранения
 	_on_continue()
 
 func _on_main_menu():
+	AudioManager.play_sfx_path("res://assets/sounds/click.mp3")
 	get_tree().paused = false
 	SceneManager.go_to_main_menu()
 
 func _on_exit():
+	AudioManager.play_sfx_path("res://assets/sounds/click.mp3")
 	get_tree().paused = false
 	SceneManager.quit_game()
