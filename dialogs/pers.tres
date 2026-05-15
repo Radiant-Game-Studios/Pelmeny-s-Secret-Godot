@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="DialogCharacter" format=3 uid="uid://biwc6nwcjle5w"]
+
+[ext_resource type="Script" uid="uid://dvemffjnki2q4" path="res://scripts/dialog/dialog_character.gd" id="1_e72l0"]
+[ext_resource type="Texture2D" uid="uid://d2dt5s48qbifq" path="res://assets/sprites/main_person/dialogFace.png" id="1_jppy8"]
+
+[resource]
+script = ExtResource("1_e72l0")
+character_name = "Pers"
+portrait = ExtResource("1_jppy8")
+metadata/_custom_type_script = "uid://dvemffjnki2q4"

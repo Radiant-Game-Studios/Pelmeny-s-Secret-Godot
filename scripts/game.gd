@@ -14,15 +14,30 @@ var show_collisions: bool = false
 @onready var info_label: Label = $DebugCanvas/InfoPanel/InfoLabel
 @onready var debug_draw: Node2D = $DebugDraw
 
+@export var dialog_chains: Array[DialogChain] = []
 
 func _ready():
 	fade_rect.visible = true
 	fade_rect.color = Color.BLACK
 	
-	# Новое: начальное состояние отладки
+	# Начальное состояние отладки
 	info_panel.visible = true
 	debug_draw.show_collisions = false
 	show_debug_info = true
+	
+	# 1. Сначала добавляем диалоговую систему
+	var dialog_sys = load("res://scenes/dialog_system.tscn").instantiate()
+	dialog_sys.add_to_group("dialog_system")
+	add_child(dialog_sys)
+	
+	# 2. Строим словарь цепочек
+	var chain_dict = {}
+	for chain in dialog_chains:
+		if chain.dialog_id != "":
+			chain_dict[chain.dialog_id] = chain
+	print("Загружено цепочек: ", dialog_chains.size())
+	for chain in dialog_chains:
+		print("  Цепочка: ", chain.dialog_id)
 	
 	var map_file = SceneManager.pending_map
 	if map_file == "":
@@ -31,7 +46,22 @@ func _ready():
 	await get_tree().process_frame
 	await get_tree().process_frame
 	
+	# 3. Теперь загружаем карту (триггеры создадутся внутри)
+	print("Пытаемся загрузить карту: ", map_file)
+	print("Полный путь: ", MapManager.data_path().path_join(map_file))
 	load_map(map_file)
+	
+	# 4. Назначаем цепочки триггерам (теперь они точно есть)
+	await get_tree().process_frame  # даём время на инициализацию триггеров
+	for trigger in get_tree().get_nodes_in_group("dialog_triggers"):
+		var id = trigger.dialog_id
+		if chain_dict.has(id):
+			trigger.set_chain(chain_dict[id])
+			print("Триггеру ", id, " назначена цепочка")
+		else:
+			print("ОШИБКА: Цепочка с id '", id, "' не найдена!")
+	
+	print("Количество триггеров в группе: ", get_tree().get_nodes_in_group("dialog_triggers").size())
 
 
 func load_map(map_name: String):
@@ -119,6 +149,8 @@ func spawn_player(map_data: Dictionary):
 func _input(event):
 	if event.is_action_pressed("ui_cancel"):
 		open_pause_menu()
+		return
+	if get_tree().get_first_node_in_group("dialog_system") and get_tree().get_first_node_in_group("dialog_system").is_dialog_active():
 		return
 	# Новое: переключение отладки
 	if event.is_action_pressed("toggle_debug"):

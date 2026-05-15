@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="DialogTextStep" format=3 uid="uid://dctttvlgg3n48"]
+
+[ext_resource type="Script" uid="uid://bqfoshh33wuqe" path="res://scripts/dialog/dialog_text_step.gd" id="1_5hvdy"]
+[ext_resource type="Resource" uid="uid://biwc6nwcjle5w" path="res://dialogs/pers.tres" id="1_oelxb"]
+
+[resource]
+script = ExtResource("1_5hvdy")
+character = ExtResource("1_oelxb")
+replica_index = 7
+metadata/_custom_type_script = "uid://bqfoshh33wuqe"

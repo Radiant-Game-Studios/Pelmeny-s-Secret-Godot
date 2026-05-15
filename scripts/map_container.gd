@@ -76,6 +76,23 @@ func setup(data: Dictionary, base_path: String) -> void:
 	if layer3:
 		layer3.tile_set = tile_set
 		fill_layer(layer3, data.get("layer3_tiles", []), type_to_source)
+		
+	# 3. Диалоговые триггеры
+	var trigger_scene = load("res://scenes/dialog_trigger.tscn")
+	var tile_size_int: int = int(tile_size)
+	for dt in data.get("dialog_triggers", []):
+		var trigger = trigger_scene.instantiate()
+		trigger.dialog_id = dt.get("dialog_id", "")
+		trigger.position = Vector2(dt.get("x", 0) * tile_size_int + tile_size_int/2,
+								   dt.get("y", 0) * tile_size_int + tile_size_int/2)
+		# Подгоняем коллизию под размер тайла (если не задано)
+		var col_shape = trigger.get_node("CollisionShape2D")
+		if col_shape and col_shape.shape:
+			col_shape.shape.extents = Vector2(tile_size_int/2, tile_size_int/2)
+		add_child(trigger)
+		print("Добавлен триггер: ", trigger.dialog_id, " на позиции ", trigger.position)
+		
+	print("Всего диалоговых триггеров в .map: ", data.get("dialog_triggers", []).size())
 	
 	print("=== Карта загружена ===")
 

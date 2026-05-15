@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="DialogChoiceStep" format=3 uid="uid://dhsbmlcnfvluw"]
+
+[ext_resource type="Script" uid="uid://8mmgymse527y" path="res://scripts/dialog/dialog_choice_step.gd" id="1_5nxoq"]
+[ext_resource type="Resource" uid="uid://crlqtv12hpd1u" path="res://dialogs/system.tres" id="1_anhl0"]
+
+[resource]
+script = ExtResource("1_5nxoq")
+choices = Array[int]([33, 34, 35])
+reply_indices = Array[int]([36, 36, 36])
+reply_character = ExtResource("1_anhl0")
+metadata/_custom_type_script = "uid://8mmgymse527y"

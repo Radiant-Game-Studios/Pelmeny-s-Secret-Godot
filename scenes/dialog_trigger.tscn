@@ -1,0 +1,24 @@
+[gd_scene format=3 uid="uid://c81dtdrppoaa4"]
+
+[ext_resource type="Script" uid="uid://50lft7j1lrkr" path="res://scripts/dialog/dialog_trigger.gd" id="1_8k0hx"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_w5nrb"]
+size = Vector2(48, 48)
+
+[node name="DialogTrigger" type="Area2D" unique_id=784073820]
+script = ExtResource("1_8k0hx")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=288105887]
+shape = SubResource("RectangleShape2D_w5nrb")
+
+[node name="HintLabel" type="Label" parent="." unique_id=651012734]
+visible = false
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -5.0
+offset_top = -47.0
+offset_right = 4.0
+offset_bottom = -24.0
+grow_horizontal = 2
+text = "E"

@@ -39,7 +39,8 @@ func load_map(map_filename: String) -> Node:
 		"tiles": data.get("tiles", []),        # для обратной совместимости, если нет слоёв
 		"collisions": data.get("collisions", []),
 		"entry_point": data.get("entry_point", null),
-		"teleport_points": data.get("teleport_points", [])
+		"teleport_points": data.get("teleport_points", []),
+		"dialog_triggers": data.get("dialog_triggers", [])
 	}
 
 	# Если слои не заданы, используем общий список tiles как слой 1
