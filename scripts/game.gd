@@ -77,6 +77,14 @@ func load_map(map_name: String):
 		push_error("Не удалось загрузить карту: " + map_name)
 		return
 
+	# Проверяем тип: кат-сцена или карта
+	if new_map is Control:
+		# Это кат-сцена (она наследуется от Control)
+		add_child(new_map)
+		# Кат-сцена сама вызовет change_scene_to_file после видео
+		return
+	
+	# Это карта (Node2D)
 	map_container = new_map
 	add_child(map_container)
 	move_child(map_container, 0)
@@ -199,7 +207,7 @@ func _on_teleport_attempted(target_map: String):
 	var tween = create_tween()
 	tween.tween_property(fade_rect, "color", Color.BLACK, 0.3)
 	tween.tween_callback(func():
-		load_map(target_map + ".map")
+		load_map(target_map)
 		fade_rect.color = Color.BLACK
 		var tween2 = create_tween()
 		tween2.tween_property(fade_rect, "color", Color(0, 0, 0, 0), 0.3)
