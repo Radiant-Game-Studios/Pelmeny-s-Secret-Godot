@@ -43,6 +43,7 @@ class MapEditor:
         self.font = pg.font.Font(None, 24)
         self.font_small = pg.font.Font(None, 20)
         self.font_title = pg.font.Font(None, 36)
+        self.new_map_active_field = "width"   # какое поле сейчас активно ("width" или "height")
 
         # Единый корень tkinter для диалогов
         self.tk_root = tk.Tk()
@@ -767,6 +768,28 @@ class MapEditor:
         self.screen.blit(title, (dialog_x + (dialog_w - title.get_width())//2, dialog_y + 15))
         self.screen.blit(self.font.render("Ширина (5-100):", True, COLOR_TEXT), (dialog_x + 20, dialog_y + 55))
         self.screen.blit(self.font.render("Высота (5-100):", True, COLOR_TEXT), (dialog_x + 20, dialog_y + 90))
+        
+        # Поля ввода
+        width_input = pg.Rect(dialog_x + 150, dialog_y + 50, 80, 24)
+        height_input = pg.Rect(dialog_x + 150, dialog_y + 85, 80, 24)
+        for rect, is_active in [(width_input, self.new_map_active_field == "width"), 
+                                (height_input, self.new_map_active_field == "height")]:
+            pg.draw.rect(self.screen, (200,200,200) if is_active else (150,150,150), rect)
+            pg.draw.rect(self.screen, COLOR_UI_BORDER, rect, 1)
+        self.screen.blit(self.font_small.render(self.new_map_width, True, (0,0,0)), 
+                        (width_input.x+5, width_input.y+5))
+        self.screen.blit(self.font_small.render(self.new_map_height, True, (0,0,0)), 
+                        (height_input.x+5, height_input.y+5))
+        # Курсор в активном поле
+        if self.new_map_active_field == "width":
+            w_text = self.font_small.render(self.new_map_width, True, (0,0,0))
+            pg.draw.line(self.screen, (0,0,0), (width_input.x+5+w_text.get_width(), width_input.y+5),
+                        (width_input.x+5+w_text.get_width(), width_input.y+19), 1)
+        elif self.new_map_active_field == "height":
+            h_text = self.font_small.render(self.new_map_height, True, (0,0,0))
+            pg.draw.line(self.screen, (0,0,0), (height_input.x+5+h_text.get_width(), height_input.y+5),
+                        (height_input.x+5+h_text.get_width(), height_input.y+19), 1)
+        
         ok_rect = pg.Rect(dialog_x + 50, dialog_y + 115, 80, 30)
         cancel_rect = pg.Rect(dialog_x + 170, dialog_y + 115, 80, 30)
         for rect, text, color in [(ok_rect, "OK", COLOR_BUTTON), (cancel_rect, "Отмена", (100,100,100))]:
@@ -776,7 +799,7 @@ class MapEditor:
             pg.draw.rect(self.screen, COLOR_UI_BORDER, rect, 2, border_radius=5)
             btn_text = self.font_small.render(text, True, COLOR_TEXT)
             self.screen.blit(btn_text, (rect.x + (rect.width - btn_text.get_width())//2, rect.y + (rect.height - btn_text.get_height())//2))
-        return ok_rect, cancel_rect
+        return ok_rect, cancel_rect, width_input, height_input
 
     def draw_resize_dialog(self):
         overlay = pg.Surface((self.screen_width, self.screen_height), pg.SRCALPHA)
@@ -1052,13 +1075,19 @@ class MapEditor:
             self.mode = "enemy_point"
 
     def handle_new_map_dialog(self, event):
+        dw, dh = 300, 150
+        dx = (self.screen_width - dw)//2
+        dy = (self.screen_height - dh)//2
+        wi = pg.Rect(dx + 150, dy + 50, 80, 24)
+        hi = pg.Rect(dx + 150, dy + 85, 80, 24)
         if event.type == pg.MOUSEBUTTONDOWN and event.button == 1:
-            dw, dh = 300, 150
-            dx = (self.screen_width - dw)//2
-            dy = (self.screen_height - dh)//2
             ok = pg.Rect(dx + 50, dy + 115, 80, 30)
             cancel = pg.Rect(dx + 170, dy + 115, 80, 30)
-            if ok.collidepoint(event.pos):
+            if wi.collidepoint(event.pos):
+                self.new_map_active_field = "width"
+            elif hi.collidepoint(event.pos):
+                self.new_map_active_field = "height"
+            elif ok.collidepoint(event.pos):
                 try:
                     w = int(self.new_map_width)
                     h = int(self.new_map_height)
@@ -1069,16 +1098,38 @@ class MapEditor:
             elif cancel.collidepoint(event.pos):
                 self.show_new_map_dialog = False
         elif event.type == pg.KEYDOWN:
-            if event.key == pg.K_RETURN:
-                try:
-                    w = int(self.new_map_width)
-                    h = int(self.new_map_height)
-                    self.new_map(w, h)
+            if self.new_map_active_field:
+                if event.key == pg.K_BACKSPACE:
+                    if self.new_map_active_field == "width":
+                        self.new_map_width = self.new_map_width[:-1]
+                    else:
+                        self.new_map_height = self.new_map_height[:-1]
+                elif event.unicode.isdigit():
+                    if self.new_map_active_field == "width" and len(self.new_map_width) < 3:
+                        self.new_map_width += event.unicode
+                    elif self.new_map_active_field == "height" and len(self.new_map_height) < 3:
+                        self.new_map_height += event.unicode
+                elif event.key == pg.K_RETURN:
+                    try:
+                        w = int(self.new_map_width)
+                        h = int(self.new_map_height)
+                        self.new_map(w, h)
+                        self.show_new_map_dialog = False
+                    except ValueError:
+                        pass
+                elif event.key == pg.K_ESCAPE:
                     self.show_new_map_dialog = False
-                except ValueError:
-                    pass
-            elif event.key == pg.K_ESCAPE:
-                self.show_new_map_dialog = False
+            else:
+                if event.key == pg.K_RETURN:
+                    try:
+                        w = int(self.new_map_width)
+                        h = int(self.new_map_height)
+                        self.new_map(w, h)
+                        self.show_new_map_dialog = False
+                    except ValueError:
+                        pass
+                elif event.key == pg.K_ESCAPE:
+                    self.show_new_map_dialog = False
 
     def handle_resize_dialog(self, event):
         dw, dh = 300, 150
