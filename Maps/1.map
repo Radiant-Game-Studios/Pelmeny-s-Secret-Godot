@@ -3110,7 +3110,7 @@
     {
       "x": 14,
       "y": 7,
-      "target_map": "2"
+      "target_map": "2.map"
     }
   ],
   "dialog_triggers": [

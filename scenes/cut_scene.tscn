@@ -2,20 +2,12 @@
 
 [ext_resource type="Script" uid="uid://cronnavtpv5he" path="res://scripts/cut_scene.gd" id="1_5gp8g"]
 
-[node name="CutScene" type="Control" unique_id=940679151]
-layout_mode = 3
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
+[node name="CutScene" type="CanvasLayer" unique_id=1744823574]
 script = ExtResource("1_5gp8g")
 
-[node name="VideoStreamPlayer" type="VideoStreamPlayer" parent="." unique_id=546694120]
-layout_mode = 1
+[node name="VideoStreamPlayer" type="VideoStreamPlayer" parent="." unique_id=982447568]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-expand = true

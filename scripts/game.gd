@@ -78,7 +78,7 @@ func load_map(map_name: String):
 		return
 
 	# Проверяем тип: кат-сцена или карта
-	if new_map is Control:
+	if new_map is CanvasLayer:
 		# Это кат-сцена (она наследуется от Control)
 		add_child(new_map)
 		# Кат-сцена сама вызовет change_scene_to_file после видео

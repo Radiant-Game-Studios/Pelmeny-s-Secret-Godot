@@ -53,7 +53,7 @@ func _on_continue():
 
 func _on_new_game():
 	AudioManager.play_sfx_path("res://assets/sounds/click.mp3")
-	_fade_to_game("1.cut")
+	_fade_to_game("1.map")
 
 
 func _on_exit():
