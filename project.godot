@@ -26,6 +26,7 @@ SceneManager="*uid://dcb375h303vqq"
 LocalizationManager="*uid://bt3w6cvk4pumb"
 AudioManager="*uid://c04c2ms2oxsvi"
 DialogManager="*uid://b6clim47n4cx0"
+EnemyRegistry="*uid://cky0uq7km4g3l"
 
 [display]
 

@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="EnemyType" format=3 uid="uid://dhmuln2mqhj72"]
+
+[ext_resource type="Script" uid="uid://dt3daig1swq7n" path="res://scripts/enemies/enemy_type.gd" id="1_8prql"]
+
+[resource]
+script = ExtResource("1_8prql")
+enemy_id = "shit"
+display_name = "Ananas"
+metadata/_custom_type_script = "uid://dt3daig1swq7n"

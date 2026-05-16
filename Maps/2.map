@@ -3041,5 +3041,18 @@
       "y": 5,
       "target_map": "1.cut"
     }
+  ],
+  "dialog_triggers": [],
+  "enemies": [
+    {
+      "x": 11,
+      "y": 3,
+      "enemy_id": "slime"
+    },
+    {
+      "x": 11,
+      "y": 8,
+      "enemy_id": "shit"
+    }
   ]
 }
