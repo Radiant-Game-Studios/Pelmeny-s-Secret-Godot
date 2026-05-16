@@ -11,8 +11,8 @@ pg.init()
 
 # Константы
 TILE_SIZE = 64
-UI_PANEL_WIDTH = 200
-INITIAL_SCREEN_WIDTH = 1024
+UI_PANEL_WIDTH = 400
+INITIAL_SCREEN_WIDTH = 1024 + 200
 INITIAL_SCREEN_HEIGHT = 768
 
 # Цвета
@@ -115,19 +115,32 @@ class MapEditor:
 
     def update_ui_rects(self):
         work_width = self.get_work_area_width()
+        # Левая колонка: кисти (чуть уже, 200 пикселей)
+        self.brush_column_x = work_width + 10
+        self.brush_column_w = 200
+        # Правая колонка: кнопки (начинается сразу за левой, до края)
+        self.button_column_x = self.brush_column_x + self.brush_column_w + 10
+        self.button_column_w = UI_PANEL_WIDTH - self.brush_column_w - 30  # подстраивается под ширину панели
+        
+        # Кнопки — теперь в правой колонке
+        btn_x = self.button_column_x
+        btn_w = self.button_column_w
+        btn_y = 50
+        btn_h = 30
+        gap = 10
         self.buttons = {
-            "new":           pg.Rect(work_width+10, 50, 180, 30),
-            "save":          pg.Rect(work_width+10, 90, 180, 30),
-            "load":          pg.Rect(work_width+10,130, 180, 30),
-            "clear":         pg.Rect(work_width+10,170, 180, 30),
-            "mode_paint":    pg.Rect(work_width+10,210, 180, 30),
-            "mode_collision":pg.Rect(work_width+10,250, 180, 30),
-            "mode_fill":     pg.Rect(work_width+10,290, 180, 30),
-            "mode_entry":    pg.Rect(work_width+10,330, 180, 30),
-            "mode_teleport": pg.Rect(work_width+10,370, 180, 30),
-            "mode_dialog":   pg.Rect(work_width+10,410, 180, 30),
-            "mode_enemy":    pg.Rect(work_width+10,450, 180, 30),
-            "resize":        pg.Rect(work_width+10,490, 180, 30),
+            "new":           pg.Rect(btn_x, btn_y, btn_w, btn_h),
+            "save":          pg.Rect(btn_x, btn_y + (btn_h+gap)*1, btn_w, btn_h),
+            "load":          pg.Rect(btn_x, btn_y + (btn_h+gap)*2, btn_w, btn_h),
+            "clear":         pg.Rect(btn_x, btn_y + (btn_h+gap)*3, btn_w, btn_h),
+            "mode_paint":    pg.Rect(btn_x, btn_y + (btn_h+gap)*4, btn_w, btn_h),
+            "mode_collision":pg.Rect(btn_x, btn_y + (btn_h+gap)*5, btn_w, btn_h),
+            "mode_fill":     pg.Rect(btn_x, btn_y + (btn_h+gap)*6, btn_w, btn_h),
+            "mode_entry":    pg.Rect(btn_x, btn_y + (btn_h+gap)*7, btn_w, btn_h),
+            "mode_teleport": pg.Rect(btn_x, btn_y + (btn_h+gap)*8, btn_w, btn_h),
+            "mode_dialog":   pg.Rect(btn_x, btn_y + (btn_h+gap)*9, btn_w, btn_h),
+            "mode_enemy":    pg.Rect(btn_x, btn_y + (btn_h+gap)*10, btn_w, btn_h),
+            "resize":        pg.Rect(btn_x, btn_y + (btn_h+gap)*11, btn_w, btn_h),
         }
 
     def create_editor_tiles(self):
@@ -697,26 +710,25 @@ class MapEditor:
             "dialog_point": (255, 200, 0),
             "enemy_point": (255, 100, 0),
         }.get(self.mode, (255,255,255))
+
+        # Индикатор режима и слой — теперь внизу панели, над статусом
+        info_y = self.screen_height - 150
         mode_surf = self.font.render(mode_text, True, mode_color)
-        self.screen.blit(mode_surf, (work_width + 10, 450))
-
-        # Слой
+        self.screen.blit(mode_surf, (work_width + 10, info_y))
         layer_text = f"Слой: {self.current_layer}"
-        self.screen.blit(self.font.render(layer_text, True, (255,255,255)), (work_width + 10, 475))
-
-        # Заголовок кистей
-        pg.draw.line(self.screen, COLOR_UI_BORDER, (work_width + 10, 490), (self.screen_width - 10, 490), 1)
+        self.screen.blit(self.font.render(layer_text, True, COLOR_TEXT), (work_width + 10, info_y + 25))
+        # Заголовок кистей — теперь над левой колонкой
         brushes_title = self.font.render("Кисти:", True, COLOR_TEXT)
-        self.screen.blit(brushes_title, (work_width + 10, 495))
-
-        # Отрисовка кистей с прокруткой
-        brush_start_y = 525
-        max_scroll = max(0, len(self.brushes) // 2 * 70 - self.brush_area_height)
+        self.screen.blit(brushes_title, (self.brush_column_x, 50))
+        
+        # Отрисовка кистей с прокруткой в левой колонке
+        brush_start_y = 80
+        max_scroll = max(0, len(self.brushes) // 2 * 70 - (self.screen_height - brush_start_y - 40))
         self.brush_scroll_y = max(0, min(self.brush_scroll_y, max_scroll))
         for i, brush in enumerate(self.brushes):
-            x = work_width + 10 + (i % 2) * 85
+            x = self.brush_column_x + (i % 2) * (TILE_SIZE + 10)
             y = brush_start_y + (i // 2) * 70 - self.brush_scroll_y
-            if y + TILE_SIZE < brush_start_y or y > brush_start_y + self.brush_area_height:
+            if y + TILE_SIZE < brush_start_y or y > self.screen_height - 20:
                 continue
             border_color = COLOR_SELECTED if i == self.selected_brush else COLOR_UI_BORDER
             pg.draw.rect(self.screen, border_color, (x - 2, y - 2, TILE_SIZE + 4, TILE_SIZE + 4), 2, border_radius=3)
@@ -726,7 +738,7 @@ class MapEditor:
             self.screen.blit(num_text, (x + 2, y + TILE_SIZE + 5))
 
         # Статус
-        status_y = self.screen_height - 60
+        status_y = self.screen_height - 100
         pg.draw.line(self.screen, COLOR_UI_BORDER, (work_width + 10, status_y - 10), (self.screen_width - 10, status_y - 10), 1)
         status = f"Карта: {self.map_width_tiles}x{self.map_height_tiles} | Слой1: {len(self.layer1_tiles)} Слой2: {len(self.layer2_tiles)} Слой3: {len(self.layer3_tiles)} Коллизий: {len(self.collisions)}"
         self.screen.blit(self.font_small.render(status, True, COLOR_TEXT), (work_width + 10, status_y))
@@ -734,12 +746,13 @@ class MapEditor:
         # Подсказки
         hints = [
             "1/2/3 - сменa слоя | 4 - точка входа | 5 - телепорт",
+            "6 - диалог | 7 - враг",
             "F - заливка | Пробел - режимы | ПКМ - ластик",
             "Ctrl+Z/Y - undo/redo | C - выделить | Ctrl+V - вставить",
         ]
         for i, h in enumerate(hints):
             surf = self.font_small.render(h, True, (150,150,150))
-            self.screen.blit(surf, (work_width + 10, self.screen_height - 40 + i * 18))
+            self.screen.blit(surf, (work_width + 10, self.screen_height - 80 + i * 18))
 
     def draw_new_map_dialog(self):
         overlay = pg.Surface((self.screen_width, self.screen_height), pg.SRCALPHA)
@@ -890,10 +903,11 @@ class MapEditor:
                                 self.handle_button(name)
                                 break
                         else:
+                            # Проверка клика по кистям (левая колонка)
                             work_width = self.get_work_area_width()
-                            brush_start_y = 525
+                            brush_start_y = 80
                             for i in range(len(self.brushes)):
-                                x = work_width + 10 + (i % 2) * 85
+                                x = self.brush_column_x + (i % 2) * (TILE_SIZE + 10)
                                 y = brush_start_y + (i // 2) * 70 - self.brush_scroll_y
                                 rect = pg.Rect(x - 2, y - 2, TILE_SIZE + 4, TILE_SIZE + 4)
                                 if rect.collidepoint(event.pos):
@@ -921,18 +935,16 @@ class MapEditor:
                             wx, wy = self.screen_to_world(event.pos[0], event.pos[1])
                             self.enemies = [e for e in self.enemies 
                                         if not (e["x"] == wx and e["y"] == wy)]
-                elif event.button == 4:
+                elif event.button == 4:  # вверх
                     mouse_x, mouse_y = event.pos
-                    work_width = self.get_work_area_width()
-                    if work_width + 10 <= mouse_x <= work_width + UI_PANEL_WIDTH - 10 and 525 <= mouse_y <= 525 + self.brush_area_height:
+                    if self.brush_column_x <= mouse_x <= self.brush_column_x + self.brush_column_w:
                         self.brush_scroll_y = max(0, self.brush_scroll_y - 70)
                     else:
                         self.tile_size = min(128, self.tile_size + 8)
-                elif event.button == 5:
+                elif event.button == 5:  # вниз
                     mouse_x, mouse_y = event.pos
-                    work_width = self.get_work_area_width()
-                    if work_width + 10 <= mouse_x <= work_width + UI_PANEL_WIDTH - 10 and 525 <= mouse_y <= 525 + self.brush_area_height:
-                        max_scroll = max(0, len(self.brushes)//2 * 70 - self.brush_area_height)
+                    if self.brush_column_x <= mouse_x <= self.brush_column_x + self.brush_column_w:
+                        max_scroll = max(0, len(self.brushes)//2 * 70 - (self.screen_height - 80 - 40))
                         self.brush_scroll_y = min(max_scroll, self.brush_scroll_y + 70)
                     else:
                         self.tile_size = max(32, self.tile_size - 8)
