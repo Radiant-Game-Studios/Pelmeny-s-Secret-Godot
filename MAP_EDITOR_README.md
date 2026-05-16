@@ -1,202 +1,237 @@
-# Map Editor for PelmenysSecret
+# 🗺️ Map Editor for Pelmeny's Secret
 
-## Overview
-A powerful tile-based map editor for creating game levels with collision detection support.
+Полнофункциональный редактор тайловых карт для создания игровых уровней с поддержкой коллизий, телепортов, диалоговых точек, точек появления врагов и кат-сцен.
 
-## Features
-- **Tile Painting Mode**: Paint graphical tiles on the map
-- **Collision Painting Mode**: Define walkable and non-walkable areas
-- **Camera Scrolling**: Right-click and drag to navigate large maps
-- **Zoom Support**: Mouse wheel to zoom in/out
-- **Custom Brushes**: Load your own PNG/JPG tiles (64x64) from `custom_tiles/`
-- **Save/Load**: Save maps in `.map` JSON format
+## 📋 Оглавление
+- [Возможности](#возможности)
+- [Типы тайлов](#типы-тайлов)
+- [Интерфейс](#интерфейс)
+- [Режимы работы](#режимы-работы)
+- [Управление](#управление)
+- [Горячие клавиши](#горячие-клавиши)
+- [Формат файла карты](#формат-файла-карты)
+- [Примеры использования](#примеры-использования)
+- [Расстановка NPC](#расстановка-npc)
+- [Создание кастомных тайлов](#создание-кастомных-тайлов)
+- [Интеграция с игрой](#интеграция-с-игрой)
+- [Устранение неполадок](#устранение-неполадок)
 
-## Tile Types
+---
 
-### Built-in Tiles (ID 0-10)
+## 🎨 Возможности
 
-| ID | Type | Description |
-|----|------|-------------|
-| 0 | Трава | Green grass |
-| 1 | Камень | Stone ground |
-| 2 | Вода | Water (impassable) |
-| 3 | Песок | Sand |
-| 4 | Дерево | Tree (impassable) |
-| 5 | Камень | Small rock (impassable) |
-| 6 | Цветы | Flowers |
-| 7 | Путь | Path |
-| 8 | Темная трава | Dark grass |
-| 9 | Лава | Lava (impassable) |
-| 10 | Снег | Snow |
+- **Многослойное рисование** (3 слоя: фон, объекты, оверлей)
+- **Режим коллизий** – разметка непроходимых зон
+- **Заливка** – заполнение выделенной области или всей карты выбранным тайлом
+- **Точка входа** (S) – стартовая позиция игрока
+- **Точки телепорта** (T) – переход на другие карты или кат-сцены
+- **Диалоговые точки** (D) – привязка диалоговых цепочек к тайлам
+- **Враги** (E) – расстановка врагов с указанием их типа
+- **Горячие клавиши** для быстрой смены режимов (6 – диалоги, 7 – враги)
+- **Камера** – перетаскивание правой кнопкой мыши, зум колёсиком
+- **Кастомные тайлы** – автоматическая загрузка PNG/JPG из папки `custom_tiles/`
+- **Буфер обмена** – копирование/вставка выделенной области
+- **Отмена/Повтор** (Ctrl+Z / Ctrl+Y)
+- **Двухколоночный интерфейс** – кисти слева, кнопки режимов справа
+- **Прокрутка кистей** – поддерживает большое количество тайлов
+- **Сохранение/загрузка** в JSON формат `.map`
 
-### Custom Tiles (ID 11+)
+---
 
-Кастомные тайлы автоматически загружаются из папки `custom_tiles/` при запуске редактора.
+## 🧱 Типы тайлов
 
-**Поддерживаемые форматы:** PNG, JPG, JPEG, BMP, GIF  
-**Требуемый размер:** 64x64 пикселя (автоматически масштабируется при необходимости)
+### Встроенные тайлы (ID 0–10)
 
-Примеры кастомных тайлов уже созданы в `custom_tiles/`:
-- `crystal.png` - Синий кристалл (ID: 11)
-- `ice.png` - Лед (ID: 12)
-- `fire.png` - Огонь (ID: 13)
+| ID | Название      | Описание                        |
+|----|---------------|---------------------------------|
+| 0  | Трава         | Зелёная трава (проходима)       |
+| 1  | Камень        | Каменная поверхность            |
+| 2  | Вода          | Вода (непроходима)              |
+| 3  | Песок         | Песок                           |
+| 4  | Дерево        | Дерево (непроходимо)            |
+| 5  | Маленький камень | Камень (непроходим)           |
+| 6  | Цветы         | Цветы на траве                  |
+| 7  | Путь          | мощёная дорожка                 |
+| 8  | Тёмная трава  | Трава тёмного оттенка           |
+| 9  | Лава          | Лава (непроходима)              |
+| 10 | Снег          | Снег                            |
 
-## Создание своих тайлов
+### Кастомные тайлы (ID 11+)
 
-1. Создайте изображение размером **64x64 пикселя** в любом графическом редакторе
-2. Сохраните в формате PNG или JPG
-3. Поместите файл в папку `custom_tiles/`
-4. Запустите редактор - тайл появится в панели кистей
+Загружаются из папки `custom_tiles/` при старте редактора.  
+**Требования:**  
+- Размер **64×64** пикселя (автоматически масштабируется)  
+- Форматы: PNG, JPG, JPEG, BMP, GIF  
+- **Сортировка** по алфавиту, ID назначаются последовательно
 
-### Программное создание
+---
 
-Используйте скрипт для создания примеров:
+## 🖥️ Интерфейс
 
-```bash
-python3 create_custom_tile.py
+### Левая колонка (ширина 200px)
+- Заголовок «Кисти»
+- Сетка 2×N с предпросмотром тайлов
+- **Прокрутка** колёсиком мыши при наведении на колонку
+- Номер тайла под каждым превью
+
+### Правая колонка (ширина ~170px)
+Кнопки:
+- **Новая карта** – создать карту с заданными размерами
+- **Сохранить / Загрузить** – работа с `.map` файлами
+- **Очистить** – удалить все данные
+- **Режим: Кисть** – рисование тайлов (по умолчанию)
+- **Режим: Коллизия** – установка/удаление коллизий
+- **Режим: Заливка (F)** – заливка выделенной области
+- **Точка входа** – установка стартовой позиции игрока
+- **Точка телепорта** – создание портала на другую карту
+- **Режим: Диалог** – размещение диалоговых триггеров
+- **Режим: Враги** – размещение врагов с указанием типа
+- **Изменить размер** – изменить размер текущей карты
+
+Внизу правой панели отображаются:
+- Текущий режим и слой (1/2/3)
+- Статистика карты (размер, количество тайлов и коллизий)
+
+---
+
+## 🎯 Режимы работы
+
+1. **Рисование (Paint)**  
+   ЛКМ – разместить выбранный тайл (или удалить ПКМ)
+
+2. **Коллизии (Collision)**  
+   ЛКМ – добавить коллизию на тайл; ПКМ – удалить
+
+3. **Заливка (Fill)**  
+   ЛКМ – залить замкнутую область текущим тайлом
+
+4. **Точка входа (Entry Point)**  
+   ЛКМ – установить точку старта игрока (только одну)
+
+5. **Точка телепорта (Teleport)**  
+   ЛКМ – создать телепорт; ввести имя целевой карты (без расширения)  
+   ПКМ – удалить телепорт
+
+6. **Диалог (Dialog)**  
+   ЛКМ – задать ID диалоговой цепочки (из Godot `DialogManager`)  
+   ПКМ – удалить точку
+
+7. **Враги (Enemy)**  
+   ЛКМ – разместить врага; ввести его тип (например, `slime`, `skeleton`)  
+   ПКМ – удалить врага
+
+---
+
+## ⌨️ Управление
+
+### Мышь
+- **ЛКМ** – действие в зависимости от режима
+- **ПКМ** – удаление (в режимах рисования, коллизий, телепортов, диалогов, врагов)
+- **Колёсико** (над областью карты) – зум (размер тайла)
+- **Колёсико** (над левой колонкой кистей) – прокрутка списка кистей
+- **Зажать колёсико и двигать** – перетаскивание камеры
+
+### Клавиши
+- **1 / 2 / 3** – переключение слоёв
+- **4** – переключиться в режим точки входа
+- **5** – переключиться в режим телепорта
+- **6** – переключиться в режим диалогов
+- **7** – переключиться в режим врагов
+- **Пробел** – циклическое переключение режимов
+- **F** – режим заливки
+- **C** (без Ctrl) – начать выделение области (копирование)
+- **Ctrl+V** – вставить скопированные тайлы
+- **Ctrl+Z** – отменить
+- **Ctrl+Y** – повторить
+- **Escape** – закрыть диалоговое окно / отменить выделение / выйти (если нет открытых окон)
+
+---
+
+## 📄 Формат файла карты
+
+```json
+{
+  "version": "1.2",
+  "width": 20,
+  "height": 15,
+  "tile_size": 48,
+  "layer1_tiles": [[x, y, tile_type], ...],
+  "layer2_tiles": [[x, y, tile_type], ...],
+  "layer3_tiles": [[x, y, tile_type], ...],
+  "collisions": [[x, y, width, height], ...],
+  "entry_point": [4, 4],
+  "teleport_points": [
+    {"x": 14, "y": 7, "target_map": "2"}
+  ],
+  "dialog_triggers": [
+    {"x": 10, "y": 2, "dialog_id": "1"}
+  ],
+  "enemies": [
+    {"x": 5, "y": 8, "enemy_id": "slime"}
+  ]
+}
 ```
 
-Этот скрипт создаст 3 примера кастомных тайлов в папке `custom_tiles/`.
+## 🔧 Примеры использования
 
-### Пример кода для создания тайла
+### Создание простого уровня
+1. Запустите редактор.
+2. Создайте новую карту (например, 30×20).
+3. Выберите слой 1, залейте всё травой (режим заливки, клавиша **F**).
+4. На слое 2 расставьте деревья, камни.
+5. Включите режим коллизий, отметьте непроходимые тайлы.
+6. Установите точку входа (клавиша **4**) и при необходимости телепорты (**5**).
+7. Добавьте диалоговые точки (**6**) и врагов (**7**) с указанием ID.
+8. Сохраните карту как `my_level.map`.
+
+### Настройка телепорта
+1. Перейдите в режим «Точка телепорта» (клавиша **5**).
+2. Кликните на нужный тайл.
+3. Введите имя целевой карты (например, `2` для `2.map`).
+4. Для кат-сцены введите имя `.cut`-файла (например, `intro.cut`) — тогда игра сначала проиграет видео, а затем загрузит карту, указанную в `.cut`.
+
+### Расстановка диалогов
+1. Включите режим «Диалог» (клавиша **6**).
+2. Кликните на тайл, где должен активироваться диалог.
+3. Введите идентификатор диалоговой цепочки (например, `1` или `babushka_greeting`).
+4. Убедитесь, что в Godot-проекте существует цепочка с таким ID в `DialogManager`.
+
+### Расстановка врагов
+1. Включите режим «Враги» (клавиша **7**).
+2. Кликните на тайл, где должен появиться враг.
+3. Введите идентификатор типа врага (например, `slime`, `skeleton`).
+4. Типы врагов должны быть заранее зарегистрированы в `EnemyRegistry` Godot-проекта.
+
+### Создание кастомных тайлов
+1. Создайте изображение размером **64×64 пикселя** в любом графическом редакторе.
+2. Сохраните его в папку `custom_tiles/` (формат PNG или JPG).
+3. При следующем запуске редактора тайл автоматически появится в левой колонке кистей с ID 11 и выше.
+
+## 🎨 Программная генерация тайла
+
+Если вы хотите создавать тайлы прямо в коде, используйте следующий пример на Python с библиотекой Pygame:
 
 ```python
 import pygame as pg
 
 pg.init()
-surf = pg.Surface((64, 64), pg.SRCALPHA)
+surface = pg.Surface((64, 64), pg.SRCALPHA)  # создаём поверхность 64×64 с прозрачностью
 
-# Рисуем свой тайл
-surf.fill((100, 200, 100))  # Зеленый фон
-pg.draw.circle(surf, (255, 255, 0), (32, 32), 20)  # Желтый круг
+# Рисуем фон (зелёная трава)
+surface.fill((34, 139, 34))
 
-# Сохраняем
-pg.image.save(surf, "custom_tiles/my_tile.png")
+# Добавляем простой узор (жёлтый круг)
+pg.draw.circle(surface, (255, 255, 0), (32, 32), 20)
+
+# Сохраняем в папку custom_tiles
+pg.image.save(surface, "custom_tiles/my_tile.png")
+pg.quit()
 ```
 
-## Usage
+После запуска скрипта файл my_tile.png появится в папке custom_tiles/ и будет автоматически загружен редактором при следующем запуске.
 
-### Running the Editor
-```bash
-cd /home/siamba/Документы/PelmenysSecret
-source Pelmeny_venv/bin/activate
-python3 map_editor.py
-```
+###❗ Устранение неполадок
 
-### Controls
-
-#### General
-- **ЛКМ (Left Click)**: Paint tiles or place collisions
-- **ПКМ (Right Click)**: Drag camera
-- **Mouse Wheel**: Zoom in/out
-- **Пробел (Space)**: Switch between paint/collision modes
-- **ESC**: Exit or close dialogs
-
-#### Buttons
-- **Новая карта**: Create a new map (specify width/height)
-- **Сохранить**: Save map to `.map` file
-- **Загрузить**: Load map from `.map` file
-- **Очистить**: Clear all tiles and collisions
-- **Режим: Кисть**: Switch to tile painting mode
-- **Режим: Коллизия**: Switch to collision painting mode
-
-#### Keyboard Shortcuts
-- **C**: Toggle collision display (in game)
-- **H**: Toggle info display
-
-## File Format
-
-Maps are saved in JSON format with `.map` extension:
-
-```json
-{
-  "version": "1.0",
-  "width": 25,
-  "height": 15,
-  "tile_size": 64,
-  "tiles": [
-    [x, y, tile_type],
-    ...
-  ],
-  "collisions": [
-    [x, y, width, height],
-    ...
-  ]
-}
-```
-
-## Integration with Game
-
-### Loading a Map in Game
-```python
-from level1 import GameScene
-
-# Load custom map
-scene = GameScene(screen, load_save=False, map_file="my_level.map")
-
-# Or use default generated map
-scene = GameScene(screen, load_save=False, map_file=None)
-```
-
-### Map Size Limits
-- Minimum: 5x5 tiles
-- Maximum: 100x100 tiles
-- Default tile size: 64x64 pixels
-
-## Collision System
-
-- **Impassable tiles**: Water (2), Tree (4), Rock (5), Lava (9)
-- **Walkable tiles**: Grass (0), Stone (1), Sand (3), Path (7), etc.
-- Collisions are defined per-tile in the collision layer
-- Character cannot move through collided tiles
-
-## Tips
-
-1. **Large Maps**: Use right-click drag to navigate. Maps larger than screen will auto-scroll.
-2. **Performance**: Only visible tiles are rendered for optimal performance.
-3. **Collisions**: Use collision mode to mark impassable areas (red overlay).
-4. **Testing**: Press 'C' in game to visualize collision areas.
-5. **Custom Tiles**: Add your own PNG/JPG files to `custom_tiles/` folder.
-
-## Examples
-
-### Creating a Simple Level
-1. Open editor: `python3 map_editor.py`
-2. Set map size (e.g., 30x20)
-3. Paint grass (brush 0) for background
-4. Add obstacles with brushes 1, 4, 5
-5. Switch to collision mode and mark impassable areas
-6. Save as `my_level.map`
-7. Load in game with `map_file="my_level.map"`
-
-### Using Sample Map
-```python
-from level1 import GameScene
-scene = GameScene(screen, map_file="sample_map.map")
-```
-
-## Troubleshooting
-
-- **Map not loading**: Check JSON syntax and file path
-- **Performance issues**: Reduce map size or visible area
-- **Collision not working**: Ensure collision layer is properly defined
-- **Zoom not working**: Some systems may have different mouse wheel behavior
-- **Custom tiles not loading**: Ensure files are in `custom_tiles/` and are valid images
-
-## Technical Details
-
-- Built with PyGame
-- JSON-based save format
-- Efficient rendering (only visible tiles)
-- Smooth camera following with interpolation
-- Collision detection via tile lookup
-- Automatic custom tile loading from `custom_tiles/`
-
-## Future Enhancements
-
-- Multiple layers (background, foreground, collision)
-- Custom tile sets import
-- Undo/redo functionality
-- Copy/paste regions
-- Auto-tiling for edges
-- Object placement (NPCs, items, triggers)
+1. Кисти не видны – проверьте, что папка `custom_tiles/` существует и содержит изображения 64×64
+2. Поля ввода не работают – кликните сначала по полю, чтобы активировать его, затем вводите цифры
+3. Не сохраняются диалоги/враги – убедитесь, что файл редактора map_editor.py обновлён (добавлены соответствующие массивы)
