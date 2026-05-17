@@ -53,8 +53,8 @@ var system_texts = {
 	},
 	# Отладочная панель
 	"debug_controls": {
-		Language.RUSSIAN: "Стрелки/WASD - движение\nE - телепорт\nПробел - атака\nC - коллизии\nH - скрыть подсказку\nESC - меню",
-		Language.ENGLISH: "Arrows/WASD - move\nE - teleport\nSpace - attack\nC - collisions\nH - hide info\nESC - menu"
+		Language.RUSSIAN: "Стрелки/WASD - движение\nE - телепорт\nПробел - атака\nC - коллизии\nM - мобильное управление\nH - скрыть подсказку\nESC - меню",
+		Language.ENGLISH: "Arrows/WASD - move\nE - teleport\nSpace - attack\nC - collisions\nM - mobile controls\nH - hide info\nESC - menu"
 	},
 	"debug_fps": {
 		Language.RUSSIAN: "FPS",

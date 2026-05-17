@@ -20,9 +20,9 @@ dialog_chains = Array[ExtResource("2_iywne")]([ExtResource("3_iywne")])
 
 [node name="InfoPanel" type="ColorRect" parent="DebugCanvas" unique_id=1264983063]
 offset_left = 6.0
-offset_top = 56.0
-offset_right = 316.0
-offset_bottom = 236.0
+offset_top = 45.0
+offset_right = 286.0
+offset_bottom = 281.0
 color = Color(0, 0, 0, 0.78431374)
 
 [node name="InfoLabel" type="Label" parent="DebugCanvas/InfoPanel" unique_id=1178146781]

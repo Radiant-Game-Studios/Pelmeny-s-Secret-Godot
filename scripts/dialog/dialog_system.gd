@@ -24,6 +24,13 @@ func _ready():
 func _input(event):
 	if not is_active:
 		return
+	# Проверка мобильной кнопки E
+	var mobile = get_tree().get_first_node_in_group("mobile_controls")
+	if mobile and mobile.visible and mobile.interact_pressed:
+		if in_choice:
+			return
+		advance()
+		return
 	if event.is_action_pressed("interact"):
 		if in_choice:
 			return  # выбор только кликом

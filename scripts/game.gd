@@ -63,6 +63,11 @@ func _ready():
 			print("ОШИБКА: Цепочка с id '", id, "' не найдена!")
 	
 	print("Количество триггеров в группе: ", get_tree().get_nodes_in_group("dialog_triggers").size())
+	
+	# Добавляем мобильное управление
+	var mobile_controls = load("res://scenes/mobile_controls.tscn").instantiate()
+	mobile_controls.add_to_group("mobile_controls")
+	add_child(mobile_controls)
 
 
 func load_map(map_name: String):
@@ -171,6 +176,11 @@ func _input(event):
 		show_collisions = !show_collisions
 		debug_draw.show_collisions = show_collisions
 		debug_draw.queue_redraw()
+	if event.is_action_pressed("toggle_mobile"):
+		var mobile = get_tree().get_first_node_in_group("mobile_controls")
+		if mobile:
+			mobile.toggle_visibility()
+			print("Мобильное управление: ", "вкл" if mobile.visible else "выкл")
 
 
 func _physics_process(delta):

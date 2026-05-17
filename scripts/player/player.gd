@@ -154,12 +154,67 @@ func _physics_process(delta):
 			modulate = Color.WHITE
 
 func handle_input():
+	# Проверка мобильного управления
+	var mobile = get_tree().get_first_node_in_group("mobile_controls")
+	
+	if mobile and mobile.visible:
+		direction = Input.get_vector("move_left", "move_right", "move_up", "move_down")
+		if direction.length() > 0:
+			direction = direction.normalized()
+			
+		if mobile.pause_pressed:
+			# Вызываем паузу
+			var game = get_tree().current_scene
+			if game and game.has_method("open_pause_menu"):
+				game.open_pause_menu()
+		
+		if mobile.attack_pressed and not is_attacking and attack_timer <= 0:
+			print("Мобильная атака!")
+			start_attack()
+		
+		if mobile.interact_pressed:
+			print("Мобильное взаимодействие!")
+			try_heal()
+			try_dialog()
+			if not get_tree().get_first_node_in_group("dialog_system") or not get_tree().get_first_node_in_group("dialog_system").is_dialog_active():
+				try_teleport_action()
+		
+		return
+	
+	# Обычное управление
 	if Input.is_action_just_pressed("interact"):
 		try_heal()
 	direction = Input.get_vector("move_left", "move_right", "move_up", "move_down")
 	if direction.length() > 0:
 		direction = direction.normalized()
 	
+func try_dialog():
+	var triggers = get_tree().get_nodes_in_group("dialog_triggers")
+	for trigger in triggers:
+		if trigger.player_in_range:
+			var sys = get_tree().get_first_node_in_group("dialog_system")
+			if sys and not sys.is_dialog_active():
+				sys.start_dialog(trigger.chain)
+				
+				# Сбрасываем мобильную кнопку E, чтобы диалог не проматывался
+				var mobile = get_tree().get_first_node_in_group("mobile_controls")
+				if mobile and mobile.visible:
+					mobile.interact_pressed = false
+				
+				return
+
+func try_teleport_action():
+	# Та же логика, что в _physics_process для телепорта
+	var sprite_size = anim.sprite_frames.get_frame_texture("idle", 0).get_size()
+	var center_x = position.x + sprite_size.x / 2.0
+	var center_y = position.y + sprite_size.y / 2.0
+	var tile_x = int(center_x / tile_size)
+	var tile_y = int(center_y / tile_size)
+
+	for tp in teleport_points:
+		if tp.x == tile_x and tp.y == tile_y:
+			emit_signal("teleport_attempted", tp.target_map)
+			return
 
 func try_heal():
 	var pickups = get_tree().get_nodes_in_group("pickups")

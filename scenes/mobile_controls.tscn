@@ -1,0 +1,56 @@
+[gd_scene format=3 uid="uid://dlsq4063tdlr1"]
+
+[ext_resource type="Script" uid="uid://c4njsxb30yy8" path="res://scripts/ui/mobile_controls.gd" id="1_l7u83"]
+[ext_resource type="PackedScene" uid="uid://dmr0fcamx7t56" path="res://addons/virtual_joystick/virtual_joystick_scene.tscn" id="2_l7u83"]
+
+[node name="MobileControls" type="CanvasLayer" unique_id=1979938646]
+layer = 2
+script = ExtResource("1_l7u83")
+
+[node name="Virtual Joystick" parent="." unique_id=196969958 instance=ExtResource("2_l7u83")]
+offset_left = 36.0
+offset_top = -278.0
+offset_right = 261.0
+offset_bottom = -46.0
+action_left = "move_left"
+action_right = "move_right"
+action_up = "move_up"
+action_down = "move_down"
+
+[node name="AttackButton" type="Button" parent="." unique_id=878283912]
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -255.0
+offset_top = -163.0
+offset_right = -157.0
+offset_bottom = -64.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_font_sizes/font_size = 35
+text = "⚔️"
+
+[node name="InteractButton" type="Button" parent="." unique_id=1576924704]
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -145.0
+offset_top = -287.0
+offset_right = -54.0
+offset_bottom = -201.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_font_sizes/font_size = 35
+text = "E"
+
+[node name="PauseButton" type="Button" parent="." unique_id=296858899]
+offset_left = 12.0
+offset_top = 15.0
+offset_right = 75.0
+offset_bottom = 82.0
+theme_override_font_sizes/font_size = 35
+text = "⏸️"

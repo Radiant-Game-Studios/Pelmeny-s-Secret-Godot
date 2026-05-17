@@ -4,7 +4,7 @@
 [ext_resource type="Script" uid="uid://nuch8f8lnjjd" path="res://scripts/dialog/dialog_system.gd" id="1_oj4fm"]
 
 [node name="DialogSystem" type="CanvasLayer" unique_id=785047430]
-layer = 100
+layer = 4
 script = ExtResource("1_oj4fm")
 
 [node name="Panel" type="Panel" parent="." unique_id=402841321]
