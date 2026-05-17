@@ -94,6 +94,18 @@ func setup(data: Dictionary, base_path: String) -> void:
 		
 	print("Всего диалоговых триггеров в .map: ", data.get("dialog_triggers", []).size())
 	
+	# 4. Враги
+	var enemy_scene = load("res://scenes/enemy.tscn")
+	for enemy_data in data.get("enemies", []):
+		var enemy = enemy_scene.instantiate()
+		enemy.enemy_id = enemy_data.get("enemy_id", "")
+		enemy.position = Vector2(
+			enemy_data.get("x", 0) * tile_size_int + tile_size_int / 2,
+			enemy_data.get("y", 0) * tile_size_int + tile_size_int / 2
+		)
+		add_child(enemy)
+		print("Добавлен враг: ", enemy.enemy_id, " на позиции ", enemy.position)
+	
 	print("=== Карта загружена ===")
 
 

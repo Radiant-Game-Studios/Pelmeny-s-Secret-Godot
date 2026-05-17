@@ -16,8 +16,19 @@ var step_timer: float = 0.0
 var step_interval: float = 0.4  # интервал между шагами
 var step_sfx: AudioStream = null
 var step_player: AudioStreamPlayer = null
+var is_attacking: bool = false
+var attack_damage: float = 15.0
+var attack_range: float = 50.0
+var attack_cooldown: float = 0.5
+var attack_timer: float = 0.0
+var max_health: float = 100.0
+var current_health: float = 100.0
+var invincible: bool = false
+var invincible_time: float = 0.5
+var invincible_timer: float = 0.0
 
 func _ready():
+	add_to_group("player")
 	# Настройка анимаций (как раньше)
 	var frames = SpriteFrames.new()
 	
@@ -71,6 +82,9 @@ func _ready():
 
 	anim.sprite_frames = frames
 	anim.play("idle")
+	
+	# Генерируем анимацию атаки
+	AnimationGenerator.generate_player_attack_frames(anim.sprite_frames)
 
 
 func set_map_info(width: int, height: int, collisions: Array, tsize: int, teleports: Array = []):
@@ -118,6 +132,23 @@ func _physics_process(delta):
 		clamp(position.x, bounds.position.x, bounds.end.x),
 		clamp(position.y, bounds.position.y, bounds.end.y)
 	)
+	
+	if Input.is_action_just_pressed("attack") and not is_attacking and attack_timer <= 0:
+		start_attack()
+	
+	if is_attacking:
+		attack_timer -= delta
+		if attack_timer <= 0:
+			is_attacking = false
+			attack_timer = attack_cooldown
+	else:
+		attack_timer -= delta
+		
+	if invincible:
+		invincible_timer -= delta
+		if invincible_timer <= 0:
+			invincible = false
+			modulate = Color.WHITE
 
 func handle_input():
 	direction = Input.get_vector("move_left", "move_right", "move_up", "move_down")
@@ -188,3 +219,47 @@ func check_near_teleport():
 			hint_label.text = LocalizationManager.get_text("press_e_to_teleport")
 			return
 	hint_label.visible = false
+	
+func start_attack():
+	is_attacking = true
+	# Длительность = количество кадров / скорость анимации
+	var attack_frames = anim.sprite_frames.get_frame_count("attack")
+	var attack_speed = anim.sprite_frames.get_animation_speed("attack")
+	attack_timer = attack_frames / attack_speed  # примерно 0.2 секунды для 2 кадров при скорости 10
+	attack_timer = max(attack_timer, 0.5)  # минимум 0.3 секунды
+	anim.play("attack")
+	
+	# Наносим урон ближайшему врагу
+	var enemies = get_tree().get_nodes_in_group("enemies")
+	var closest_enemy = null
+	var closest_dist = attack_range
+	
+	for enemy in enemies:
+		var dist = position.distance_to(enemy.position)
+		if dist < closest_dist:
+			closest_dist = dist
+			closest_enemy = enemy
+	
+	if closest_enemy and closest_enemy.has_method("take_damage"):
+		closest_enemy.take_damage(attack_damage)
+		print("Удар по врагу! Урон: ", attack_damage)
+		
+func take_damage(amount: float):
+	if invincible:
+		return
+	
+	current_health -= amount
+	print("Игрок получил урон: ", amount, " HP: ", current_health)
+	
+	if current_health <= 0:
+		die()
+	
+	# Неуязвимость и мигание
+	invincible = true
+	invincible_timer = invincible_time
+	modulate = Color.RED
+
+
+func die():
+	print("Игрок погиб!")
+	SceneManager.go_to_main_menu()

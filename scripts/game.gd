@@ -187,10 +187,25 @@ func _update_debug_text():
 
 
 func _update_collision_debug():
-	# Обновляем хитбокс игрока в системе координат карты
-	var shape: RectangleShape2D = current_player.get_node("CollisionShape2D").shape
-	var col_pos = current_player.get_node("CollisionShape2D").position
-	debug_draw.player_hitbox = Rect2(current_player.position + col_pos, shape.size)
+	# Хитбокс игрока
+	if current_player:
+		var shape: RectangleShape2D = current_player.get_node("CollisionShape2D").shape
+		var col_pos = current_player.get_node("CollisionShape2D").position
+		debug_draw.player_hitbox = Rect2(current_player.position + col_pos, shape.size)
+		
+		# Радиус атаки игрока
+		debug_draw.player_attack_range = current_player.attack_range
+		debug_draw.player_position = current_player.position
+	
+	# Радиусы атаки врагов
+	debug_draw.enemy_ranges.clear()
+	for enemy in get_tree().get_nodes_in_group("enemies"):
+		if enemy.is_active:
+			debug_draw.enemy_ranges.append({
+				"position": enemy.position,
+				"range": enemy.attack_range
+			})
+	
 	debug_draw.queue_redraw()
 
 

@@ -55,20 +55,30 @@ static func generate_enemy_frames(size: Vector2, color: Color, eye_color: Color 
 
 # Для ГГ аналогично, но с другим цветом
 static func generate_player_attack_frames(existing_frames: SpriteFrames) -> void:
-	# Добавляем анимацию "attack" на основе существующего idle
 	if not existing_frames.has_animation("idle"):
 		return
-	var idle_frame = existing_frames.get_frame_texture("idle", 0)
-	var img = idle_frame.get_image()
-	var size = img.get_size()
+	
+	var idle_texture = existing_frames.get_frame_texture("idle", 0)
+	var idle_image = idle_texture.get_image()
+	var size = idle_image.get_size()
 	
 	existing_frames.add_animation("attack")
+	
 	for i in range(2):
-		var new_img = Image.create(size.x, size.y, false, Image.FORMAT_RGBA8)
-		new_img.blit_rect(img, Rect2i(0,0,size.x,size.y), Vector2i.ZERO)
-		# Добавляем "меч"
-		var sword_x = size.x + i*8
-		new_img.fill_rect(Rect2i(sword_x, size.y*0.4, 10, 4), Color.YELLOW)
+		# Создаём новое изображение БОЛЬШЕ по ширине (чтобы влез меч)
+		var new_width = size.x + 16
+		var new_img = Image.create(new_width, size.y, false, Image.FORMAT_RGBA8)
+		
+		# Копируем персонажа (слева)
+		new_img.blit_rect(idle_image, Rect2i(0, 0, size.x, size.y), Vector2i(0, 0))
+		
+		# Рисуем "меч" справа от персонажа
+		var sword_x = size.x + i * 8  # больше сдвиг
+		var sword_y = size.y * 0.4
+		new_img.fill_rect(Rect2i(sword_x, sword_y, 16, 6), Color.YELLOW)  # длиннее и толще
+		new_img.fill_rect(Rect2i(sword_x + 4, sword_y - 3, 6, 12), Color.BROWN)  # больше рукоять
+		
 		var tex = ImageTexture.create_from_image(new_img)
 		existing_frames.add_frame("attack", tex)
-	existing_frames.set_animation_speed("attack", 10.0)
+	
+	existing_frames.set_animation_speed("attack", 6.0)
