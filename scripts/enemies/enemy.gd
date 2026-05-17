@@ -8,6 +8,7 @@ extends CharacterBody2D
 
 @onready var animated_sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var visibility_notifier: VisibleOnScreenNotifier2D = $VisibleOnScreenNotifier2D
+@onready var health_bar: ProgressBar = $HealthBar
 
 var player: Node = null
 var current_health: float
@@ -38,6 +39,8 @@ func _ready():
 	if visibility_notifier:
 		visibility_notifier.screen_entered.connect(_on_screen_entered)
 		visibility_notifier.screen_exited.connect(_on_screen_exited)
+		
+	update_health_bar()
 
 
 func generate_animations():
@@ -100,9 +103,24 @@ func _physics_process(delta):
 
 func take_damage(amount: float):
 	current_health -= amount
+	update_health_bar()
 	if current_health <= 0:
 		die()
 
 
 func die():
 	queue_free()
+	
+func update_health_bar():
+	if health_bar:
+		var ratio = current_health / max_health
+		health_bar.value = ratio * 100
+		
+		var style = health_bar.get_theme_stylebox("fill", "ProgressBar")
+		if style is StyleBoxFlat:
+			if ratio > 0.6:
+				style.bg_color = Color.GREEN
+			elif ratio > 0.3:
+				style.bg_color = Color.YELLOW
+			else:
+				style.bg_color = Color.RED

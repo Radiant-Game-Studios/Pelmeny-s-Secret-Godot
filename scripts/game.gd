@@ -13,6 +13,7 @@ var show_collisions: bool = false
 @onready var info_panel: ColorRect = $DebugCanvas/InfoPanel
 @onready var info_label: Label = $DebugCanvas/InfoPanel/InfoLabel
 @onready var debug_draw: Node2D = $DebugDraw
+@onready var player_health_bar: ProgressBar = $DebugCanvas/PlayerHealthBar
 
 @export var dialog_chains: Array[DialogChain] = []
 
@@ -177,6 +178,21 @@ func _physics_process(delta):
 	
 	if show_collisions and current_player:
 		_update_collision_debug()
+		
+	# Обновление полоски здоровья игрока
+	if current_player:
+		var ratio = current_player.current_health / current_player.max_health
+		player_health_bar.value = ratio * 100
+		
+		# Меняем цвет в зависимости от здоровья
+		var style = player_health_bar.get_theme_stylebox("fill", "ProgressBar")
+		if style is StyleBoxFlat:
+			if ratio > 0.6:
+				style.bg_color = Color.GREEN
+			elif ratio > 0.3:
+				style.bg_color = Color.YELLOW
+			else:
+				style.bg_color = Color.RED
 
 
 func _update_debug_text():

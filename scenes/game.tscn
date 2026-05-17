@@ -6,28 +6,23 @@
 [ext_resource type="Resource" uid="uid://bhi7ofhfg5vyy" path="res://dialogs/chain.tres" id="3_iywne"]
 [ext_resource type="Script" uid="uid://b6clim47n4cx0" path="res://scripts/autoload/dialog_manager.gd" id="3_lnu2h"]
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_iywne"]
+bg_color = Color(0.32915837, 0.3291584, 0.3291583, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_p57ef"]
+bg_color = Color(0.24269435, 0.7155883, 0, 1)
+
 [node name="Game" type="Node2D" unique_id=6515145]
 script = ExtResource("1_uwrxv")
 dialog_chains = Array[ExtResource("2_iywne")]([ExtResource("3_iywne")])
 
-[node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=1804229874]
-
-[node name="FadeRect" type="ColorRect" parent="CanvasLayer" unique_id=1782789408]
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-color = Color(0, 0, 0, 1)
-
 [node name="DebugCanvas" type="CanvasLayer" parent="." unique_id=999342920]
 
 [node name="InfoPanel" type="ColorRect" parent="DebugCanvas" unique_id=1264983063]
-offset_left = 5.0
-offset_top = 5.0
-offset_right = 315.0
-offset_bottom = 185.0
+offset_left = 6.0
+offset_top = 56.0
+offset_right = 316.0
+offset_bottom = 236.0
 color = Color(0, 0, 0, 0.78431374)
 
 [node name="InfoLabel" type="Label" parent="DebugCanvas/InfoPanel" unique_id=1178146781]
@@ -39,6 +34,26 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_font_sizes/font_size = 14
+
+[node name="PlayerHealthBar" type="ProgressBar" parent="DebugCanvas" unique_id=267562856]
+offset_left = 10.0
+offset_top = 10.0
+offset_right = 210.0
+offset_bottom = 37.0
+theme_override_styles/background = SubResource("StyleBoxFlat_iywne")
+theme_override_styles/fill = SubResource("StyleBoxFlat_p57ef")
+show_percentage = false
+
+[node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=1804229874]
+
+[node name="FadeRect" type="ColorRect" parent="CanvasLayer" unique_id=1782789408]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0, 0, 0, 1)
 
 [node name="DebugDraw" type="Node2D" parent="." unique_id=468509708]
 script = ExtResource("2_yqjtg")

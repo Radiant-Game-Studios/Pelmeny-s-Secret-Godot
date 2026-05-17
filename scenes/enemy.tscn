@@ -5,15 +5,30 @@
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_md0e3"]
 size = Vector2(48, 49.5)
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_7p1mj"]
+bg_color = Color(0.2520276, 0.25202766, 0.25202754, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_md0e3"]
+bg_color = Color(1.1070073e-06, 0.72333187, 0.26207164, 1)
+
 [node name="Enemy" type="CharacterBody2D" unique_id=649661795]
 script = ExtResource("1_7p1mj")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1247863483]
-position = Vector2(-24, 30)
+position = Vector2(0, -1)
 shape = SubResource("RectangleShape2D_md0e3")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=902047479]
 
 [node name="VisibleOnScreenNotifier2D" type="VisibleOnScreenNotifier2D" parent="." unique_id=1519539230]
-position = Vector2(-38, 15)
+position = Vector2(-14, -16)
 rect = Rect2(-10, -10, 48, 50)
+
+[node name="HealthBar" type="ProgressBar" parent="." unique_id=2005147259]
+offset_left = -23.0
+offset_top = -42.0
+offset_right = 24.0
+offset_bottom = -32.0
+theme_override_styles/background = SubResource("StyleBoxFlat_7p1mj")
+theme_override_styles/fill = SubResource("StyleBoxFlat_md0e3")
+show_percentage = false
