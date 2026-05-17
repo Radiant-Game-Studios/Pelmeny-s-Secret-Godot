@@ -156,6 +156,8 @@ func spawn_player(map_data: Dictionary):
 
 
 func _input(event):
+	if current_player and current_player.is_dead:
+		return
 	if event.is_action_pressed("ui_cancel"):
 		open_pause_menu()
 		return

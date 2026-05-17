@@ -72,7 +72,15 @@ var system_texts = {
 	"error_loading_map": {
 		Language.RUSSIAN: "Ошибка загрузки карты",
 		Language.ENGLISH: "Error loading map"
-	}
+	},
+	"you_died": {
+	Language.RUSSIAN: "Вы погибли",
+	Language.ENGLISH: "You Died"
+	},
+	"retry": {
+		Language.RUSSIAN: "Начать заново",
+		Language.ENGLISH: "Retry"
+	},
 }
 
 # ========================================

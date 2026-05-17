@@ -26,6 +26,7 @@ var current_health: float = 100.0
 var invincible: bool = false
 var invincible_time: float = 0.5
 var invincible_timer: float = 0.0
+var is_dead: bool = false
 
 func _ready():
 	add_to_group("player")
@@ -96,6 +97,8 @@ func set_map_info(width: int, height: int, collisions: Array, tsize: int, telepo
 
 
 func _physics_process(delta):
+	if is_dead:
+		return
 	handle_input()
 	update_animation()
 	check_near_teleport()
@@ -262,4 +265,14 @@ func take_damage(amount: float):
 
 func die():
 	print("Игрок погиб!")
-	SceneManager.go_to_main_menu()
+	is_dead = true
+	
+	# Останавливаем анимацию
+	anim.play("idle")
+	anim.stop()
+	
+	# Отключаем коллизию, чтобы враги не толкали труп
+	$CollisionShape2D.disabled = true
+	
+	var death_screen = load("res://scenes/death_screen.tscn").instantiate()
+	get_tree().current_scene.add_child(death_screen)

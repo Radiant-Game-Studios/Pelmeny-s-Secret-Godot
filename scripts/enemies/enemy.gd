@@ -72,6 +72,11 @@ func _physics_process(delta):
 	if not is_active:
 		return
 	
+	# Если игрок мёртв — ничего не делаем
+	if player and player.has_method("is_dead") and player.is_dead:
+		animated_sprite.play("idle")
+		return
+		
 	attack_timer -= delta
 	
 	# Ищем игрока

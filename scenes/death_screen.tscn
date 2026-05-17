@@ -1,0 +1,44 @@
+[gd_scene format=3 uid="uid://c6levfgqm88ur"]
+
+[ext_resource type="Script" uid="uid://dqowpuusoi0pr" path="res://scripts/ui/death_screen.gd" id="1_uyutr"]
+
+[node name="DeathScreen" type="CanvasLayer" unique_id=834038291]
+script = ExtResource("1_uyutr")
+
+[node name="Overlay" type="ColorRect" parent="." unique_id=1819335854]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.7058824)
+
+[node name="VBoxContainer" type="VBoxContainer" parent="." unique_id=103643167]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -20.0
+offset_top = -20.0
+offset_right = 20.0
+offset_bottom = 20.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="TitleLabel" type="Label" parent="VBoxContainer" unique_id=170145222]
+layout_mode = 2
+text = "Вы погибли!"
+horizontal_alignment = 1
+
+[node name="RetryButton" type="Button" parent="VBoxContainer" unique_id=187957646]
+layout_mode = 2
+text = "Начать заново"
+
+[node name="MenuButton" type="Button" parent="VBoxContainer" unique_id=791420786]
+layout_mode = 2
+text = "Главное меню"
+
+[node name="ExitButton" type="Button" parent="VBoxContainer" unique_id=360002377]
+layout_mode = 2
+text = "Выход"
