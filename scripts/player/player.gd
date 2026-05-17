@@ -154,11 +154,22 @@ func _physics_process(delta):
 			modulate = Color.WHITE
 
 func handle_input():
+	if Input.is_action_just_pressed("interact"):
+		try_heal()
 	direction = Input.get_vector("move_left", "move_right", "move_up", "move_down")
 	if direction.length() > 0:
 		direction = direction.normalized()
+	
 
-
+func try_heal():
+	var pickups = get_tree().get_nodes_in_group("pickups")
+	for pickup in pickups:
+		if pickup.player_nearby:
+			heal(pickup.heal_amount)
+			pickup.queue_free()
+			print("Подобрана хилка! +", pickup.heal_amount, "HP")
+			return  # выходим после первой хилки
+			
 func update_animation():
 	if direction == Vector2.ZERO:
 		anim.play("idle")
@@ -276,3 +287,7 @@ func die():
 	
 	var death_screen = load("res://scenes/death_screen.tscn").instantiate()
 	get_tree().current_scene.add_child(death_screen)
+	
+func heal(amount: float):
+	current_health = min(current_health + amount, max_health)
+	print("Игрок вылечен на ", amount, " HP: ", current_health)

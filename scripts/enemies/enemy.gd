@@ -114,6 +114,12 @@ func take_damage(amount: float):
 
 
 func die():
+	# Спавним хилку
+	var pickup_scene = load("res://scenes/health_pickup.tscn")
+	var pickup = pickup_scene.instantiate()
+	pickup.position = position
+	get_parent().add_child(pickup)
+	
 	queue_free()
 	
 func update_health_bar():
